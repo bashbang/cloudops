@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM public.ecr.aws/lts/ubuntu:latest
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
