@@ -1,4 +1,4 @@
-FROM quay.io/quay/ubuntu:latest
+FROM image-registry.openshift-image-registry.svc:5000/286498-dev/ubuntu
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
