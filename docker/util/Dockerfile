@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lts/ubuntu:latest
+FROM quay.io/quay/ubuntu:latest
 
 RUN apt-get -y update \
     && apt-get -y upgrade \
