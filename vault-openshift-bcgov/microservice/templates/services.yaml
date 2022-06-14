@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-{{ .Values.stage }}
+  labels:
+    app: {{ .Values.app_name }}
+    stage: {{ .Values.stage }}
+    name: {{ .Values.app_name }}
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: {{ .Values.app_name }}
+    stage: {{ .Values.stage }}
+  sessionAffinity: None
+  type: ClusterIP

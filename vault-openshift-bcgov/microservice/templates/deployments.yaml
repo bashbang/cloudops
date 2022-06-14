@@ -1,0 +1,114 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.app_name }}-{{ .Values.stage }}
+  labels:
+    app: {{ .Values.app_name }}
+    stage: {{ .Values.stage }}
+  annotations:
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind": "ImageStreamTag",
+            "namespace": "{{ .Values.licenseplate }}-tools",
+            "name": "{{ .Values.app_name }}:{{ .Values.imagestreamtag }}"
+          },
+          "fieldPath": "spec.template.spec.containers[0].image"
+        }
+      ]
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app_name }}
+      stage: {{ .Values.stage }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app_name }}
+        stage: {{ .Values.stage }}
+
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-token: 'true'
+        vault.hashicorp.com/agent-limits-cpu: {{ .Values.vault_limits_cpu }}
+        vault.hashicorp.com/agent-limits-mem: {{ .Values.vault_limits_mem }}
+        vault.hashicorp.com/agent-requests-cpu: {{ .Values.vault_requests_cpu }}
+        vault.hashicorp.com/agent-requests-mem: {{ .Values.vault_requests_mem }}
+        vault.hashicorp.com/auth-path: auth/k8s-gold
+        vault.hashicorp.com/namespace: platform-services
+        vault.hashicorp.com/role: {{ .Values.licenseplate }}-{{ .Values.vault_engine }}
+
+        vault.hashicorp.com/agent-inject-secret-my-microservices-stage: {{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.stage }}
+        vault.hashicorp.com/agent-inject-template-microservices-stage: |
+          {{`{{- with secret `}}"{{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}-{{ .Values.stage }}"{{` }}
+          export stage="{{ .Data.data.stage }}"
+          {{- end `}} }}
+
+        vault.hashicorp.com/agent-inject-secret-microservices-environment: {{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}
+        vault.hashicorp.com/agent-inject-template-microservices-environment: |
+          {{`{{- with secret `}}"{{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}"{{` }}
+          export jre_opts="{{ .Data.data.jre_opts }}"
+          export dev_database="{{ .Data.data.dev_database }}"
+          export dev_host="{{ .Data.data.dev_host }}"
+          export openshift_host="{{ .Data.data.openshift_host }}"
+          export run_sonar="{{ .Data.data.run_sonar }}"
+          export dev_host="{{ .Data.data.dev_host }}"
+          export java_debug="{{ .Data.data.java_debug }}"
+          export openshift_licenseplate="{{ .Data.data.openshift_licenseplate }}"
+          {{- end `}} }}
+
+    spec:
+      containers:
+      - name: {{ .Values.app_name }}-{{ .Values.stage }}
+        image: {{ .Values.dockerhost }}/{{ .Values.licenseplate }}-tools/{{ .Values.app_name }}:{{ .Values.imagestreamtag }}
+        imagePullPolicy: Always
+        env:
+          - name: servicename
+            value: {{ .Values.app_name }}
+          - name: servlet_context_path
+            value: {{ .Values.servlet_context_path }}
+          - name: namespace
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+        resources:
+          limits:
+            cpu: {{ .Values.cpu_limit }}
+            memory: {{ .Values.memory_limit }}
+          requests:
+            cpu: {{ .Values.cpu_requests }}
+            memory: {{ .Values.memory_requests }}
+        startupProbe:
+          httpGet:
+            scheme: HTTP
+            path: /{{ .Values.servlet_context_path }}/{{ .Values.probe_context }}
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /{{ .Values.servlet_context_path }}/{{ .Values.probe_context }}
+            port: 8080
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /{{ .Values.servlet_context_path }}/{{ .Values.probe_context }}
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+          failureThreshold: 3
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      serviceAccount: {{ .Values.licenseplate }}-vault
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

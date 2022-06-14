@@ -1,0 +1,25 @@
+# App specific
+app_name: my-microservice
+servlet_context_path: my_service
+probe_context: actuator/health
+
+# Environment specific
+licenseplate: abc123
+environment: dev
+stage: qa
+dockerhost: image-registry.openshift-image-registry.svc:5000
+imagestreamtag: develop
+
+# Vault Sidecar
+vault_requests_cpu: 5m   # default: 250m
+vault_requests_mem: 20Mi    # default: 64Mi
+vault_limits_cpu: 10m      # default: 500m
+vault_limits_mem: 64Mi      # default: 128Mi
+vault_engine: nonprod
+
+# k8s scaling
+replicas: "1"
+cpu_limit: "300m"
+memory_limit: "750Mi"
+cpu_requests: "150m"
+memory_requests: "575Mi"
