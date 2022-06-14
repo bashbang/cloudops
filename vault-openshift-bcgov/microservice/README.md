@@ -103,3 +103,6 @@ spec:
 Note the additional line under spec that I added. This is the service account that is needed to connect to the Vault. This account has been created already for you in Openshift so on the surface it's straight forward. You may notice another one that's used in the demo: `serviceAccount: LICENSE-vault`. According to `oc explain pod.spec.serviceAccount` serviceAccount has been deprecated.
 
 There's a issue to be aware of with using this service account. In my case I use Imagestreams from the {licenseplate}-tools namespace which means I need to have a service account that's allowed to read from the image stream between namespaces (eg: between abc123-dev and abc123-tools). Originally I'd set the "deployer" account with the permissions to do this by adding the vault secrets to the deployer SA, but for some reason it didn't work. What did work was using the {licenseplate}-vault service account (abc123-vault). It already had permissions to read from the tools namespace. Perhaps not optimal, but it worked.
+
+
+The templates in this folder presents a helm version of a similar manifest. I've also included a sample json file that vault would use to storing its secrets.
