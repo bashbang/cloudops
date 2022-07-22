@@ -18,7 +18,7 @@ jobs:
           token: ${{ secrets.SONAR_TOKEN }}
           projectName: CloudOps
           projectKey: project.key.from.sonar.qube
-          url: {{ secrets.SONAR_HOST_URL }}
+          url: ${{ secrets.SONAR_HOST_URL }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
