@@ -20,6 +20,7 @@ jobs:
           projectKey: CloudOps
           url: ${{ secrets.SONAR_HOST_URL }}
         env:
+          sonar.projectKey: CloudOps
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
