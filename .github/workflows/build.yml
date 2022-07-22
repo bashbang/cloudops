@@ -20,8 +20,9 @@ jobs:
           # projectKey: CloudOps
           # url: ${{ secrets.SONAR_HOST_URL }}
           projectBaseDir: PassBox
-        args:
-          -Dsonar.java.binaries=build/classes
+          args: >
+            -Dsonar.java.binaries=build/classes
+            -Dsonar.verbose=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
