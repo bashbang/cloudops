@@ -1,0 +1,27 @@
+name: Chris Test
+
+# This workflow runs if helm changes were made to either a values file or a chart template change.
+on:
+  workflow_dispatch:
+
+jobs:
+  RunBuild:
+    runs-on: ubuntu-latest
+    name: Run Build
+    steps:
+      - name: Obtain code from git
+        uses: actions/checkout@v2
+
+      - name: SonarQube Scan
+        users: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        users: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
