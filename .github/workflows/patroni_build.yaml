@@ -30,6 +30,5 @@ jobs:
 
       - name: Tag and Push "Develop-Silver" Docker image
         run: |
-          docker images
-          docker tag patroni image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
+          docker tag docker_patroni image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
           docker push image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
