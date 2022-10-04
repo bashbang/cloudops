@@ -31,4 +31,4 @@ jobs:
       - name: Tag and Push "Develop-Silver" Docker image
         run: |
           docker tag cmf-microservices_patroni image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
-          docker push image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev-tools/patroni:latest
+          docker push image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
