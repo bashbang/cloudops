@@ -21,14 +21,14 @@ jobs:
         run: |
           docker-compose build patroni
 
-      # - name: Login to OC4 Silver
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: image-registry.apps.silver.devops.gov.bc.ca
-      #     username: serviceaccount
-      #     password: ${{ secrets.48aa05-dev_silver-token }}
+      - name: Login to OC4 Silver
+        uses: docker/login-action@v2
+        with:
+          registry: image-registry.apps.silver.devops.gov.bc.ca
+          username: serviceaccount
+          password: ${{ secrets.oc4_48aa05_dev_silver_token }}
 
-      # - name: Tag and Push "Develop-Silver" Docker image
-      #   run: |
-      #     docker tag cmf-microservices_patroni image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
-      #     docker push image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev-tools/patroni:latest
+      - name: Tag and Push "Develop-Silver" Docker image
+        run: |
+          docker tag cmf-microservices_patroni image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev/patroni:latest
+          docker push image-registry.apps.silver.devops.gov.bc.ca/48aa05-dev-tools/patroni:latest
