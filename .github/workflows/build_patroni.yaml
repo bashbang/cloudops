@@ -6,10 +6,16 @@ on:
 
 jobs:
   build:
-    name: Build Patroni Imagels
+    name: Build Patroni Image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Login to Openshift Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: image-registry.apps.gold.devops.gov.bc.ca
+          username: serviceaccount
+          password: ${{ secrets.OC4_GOLD_SA_TOKEN }}
       - name: Docker Tag Version
         working-directory: patroni-gold-golddr
         run: |
@@ -17,12 +23,6 @@ jobs:
       - name: Docker Tag Version
         run: |
           docker tag patroni-postgres image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
-      - name: Login to Openshift Docker Registry
-        uses: docker/login-action@v1
-        with:
-          registry: image-registry.apps.gold.devops.gov.bc.ca
-          username: serviceaccount
-          password: ${{ secrets.OC4_GOLD_SA_TOKEN }}
       - name: Docker Push Version
         run: |
           docker push image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
