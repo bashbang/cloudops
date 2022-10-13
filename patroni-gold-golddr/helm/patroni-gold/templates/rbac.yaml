@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: {{ .Values.app_name }}
+    cluster-name: {{ .Values.license_plate }}
+  name: {{ .Values.app_name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: {{ .Values.app_name }}
+    cluster-name: {{ .Values.license_plate }}
+  name: {{ .Values.app_name }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - get
+      - patch
+      - update
+      - create
+      - list
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+      - image.openshift.io
+    resources:
+      - pods
+      - imagestreams/layers
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: {{ .Values.app_name }}
+    cluster-name: {{ .Values.license_plate }}
+  name: {{ .Values.app_name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.app_name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.app_name }}
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   labels:
+#     app: {{ .Values.app_name }}
+#     cluster-name: {{ .Values.license_plate }}
+#   name: {{ .Values.app_name }}
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: system:image-puller
+# subjects:
+#   - kind: ServiceAccount
+#     name: {{ .Values.app_name }}

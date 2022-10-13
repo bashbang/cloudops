@@ -1,0 +1,158 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: {{ .Values.app_name }}
+    cluster-name: {{ .Values.license_plate }}
+  name: {{ .Values.app_name }}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      statefulset: {{ .Values.app_name }}
+  serviceName: {{ .Values.app_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app_name }}
+        statefulset: {{ .Values.app_name }}
+        cluster-name: {{ .Values.license_plate }}
+        app.kubernetes.io/name: patroni
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: statefulset
+                    operator: In
+                    values:
+                      - {{ .Values.app_name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - env:
+            #TODO: Remove POD_IP in favor of PATRONI_KUBERNETES_POD_IP
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            #          - name: PATRONI_KUBERNETES_USE_ENDPOINTS
+            #            value: 'true'
+            #          - name: PATRONI_KUBERNETES_POD_IP
+            #            valueFrom:
+            #              fieldRef:
+            #                apiVersion: v1
+            #                fieldPath: status.podIP
+            #          - name: PATRONI_KUBERNETES_PORTS
+            #            value: '{[{"name": "postgresql", "port": 5432}]}'
+            - name: PATRONI_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: PATRONI_KUBERNETES_LABELS
+              value: '{"cluster-name": "{{ .Values.license_plate }}", "app.kubernetes.io/name": "patroni"}'
+            - name: PATRONI_SUPERUSER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: superuser-username
+                  name: {{ .Values.app_name }}-creds
+            - name: PATRONI_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: superuser-password
+                  name: {{ .Values.app_name }}-creds
+            - name: PATRONI_REPLICATION_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: replication-username
+                  name: {{ .Values.app_name }}-creds
+            - name: PATRONI_REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: replication-password
+                  name: {{ .Values.app_name }}-creds
+            - name: APP_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: {{ .Values.app_name }}-creds
+            - name: APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: {{ .Values.app_name }}-creds
+            - name: APP_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-name
+                  name: {{ .Values.app_name }}-creds
+            - name: PATRONI_SCOPE
+              value: {{ .Values.app_name }}
+            - name: PATRONI_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: PATRONI_LOG_LEVEL
+              value: WARNING
+            - name: PATRONI_POSTGRESQL_DATA_DIR
+              value: /home/postgres/pgdata/pgroot/data
+            - name: PATRONI_POSTGRESQL_PGPASS
+              value: /tmp/pgpass
+            - name: PATRONI_POSTGRESQL_LISTEN
+              value: 0.0.0.0:5432
+            - name: PATRONI_RESTAPI_LISTEN
+              value: 0.0.0.0:8008
+          image: {{ .Values.image_registry }}/{{ .Values.license_plate }}-tools/patroni:latest
+          imagePullPolicy: Always
+          name: patroni
+          ports:
+            - containerPort: 8008
+              protocol: TCP
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.stateful_requests_cpu }}
+              memory: {{ .Values.stateful_requests_memory }}
+            limits:
+              cpu: {{ .Values.stateful_limit_cpu }}
+              memory: {{ .Values.stateful_limit_memory }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          readinessProbe:
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 4
+            exec:
+              command:
+                - /usr/share/scripts/patroni/health_check.sh
+          volumeMounts:
+            - mountPath: /home/postgres/pgdata
+              name: postgresql
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: {{ .Values.app_name }}
+      terminationGracePeriodSeconds: 0
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        annotations:
+          volume.beta.kubernetes.io/storage-class: netapp-file-standard
+        labels:
+          app: {{ .Values.app_name }}
+        name: postgresql
+      spec:
+        storageClassName: netapp-file-standard
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.volume_size }}
