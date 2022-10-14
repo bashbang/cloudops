@@ -23,6 +23,18 @@ bootstrap:
         max_connections: ${POSTGRESQL_MAX_CONNECTIONS:-100}
         max_prepared_transactions: ${POSTGRESQL_MAX_PREPARED_TRANSACTIONS:-0}
         max_locks_per_transaction: ${POSTGRESQL_MAX_LOCKS_PER_TRANSACTION:-64}
+__EOF__
+# TODOL The port would be variable and can be discovered with: oc -n c57b11-dev get ts
+# TODO: perhaps output as a json and obtain the desired information or grep and sed the port?
+# TODO: Also the service (host) is hard coded here, this would be better to pull that info from the helm values file, or pass it into this script.
+if ($GOLD) cat >> /home/postgres/patroni.yml <<__EOF__
+    standby_cluster:
+      host: patroni-gold
+      port: 16206
+      username: ${PATRONI_REPLICATION_USERNAME}
+      password: ${PATRONI_REPLICATION_PASSWORD}
+__EOF__
+cat >> /home/postgres/patroni.yml <<__EOF__
   initdb:
   - auth-host: md5
   - auth-local: trust
