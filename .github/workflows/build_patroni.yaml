@@ -10,20 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: GDX-Gold
     steps:
-      - uses: actions/checkout@v3
+      - name: Pull Git Repo
+        uses: actions/checkout@v3
       - name: Login to Openshift Docker Registry
         uses: docker/login-action@v2
         with:
           registry: image-registry.apps.gold.devops.gov.bc.ca
           username: serviceaccount
           password: ${{ secrets.OC4_GOLD_SA_TOKEN }}
-      - name: Docker Tag Version
+      - name: Docker Build Patroni
         working-directory: patroni-gold-golddr
         run: |
           docker build -t patroni-postgres -f Dockerfile .
-      - name: Docker Tag Version
+      - name: Docker Tag Patroni
         run: |
           docker tag patroni-postgres image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
-      - name: Docker Push Version
+      - name: Docker Push Patroni
         run: |
           docker push image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
