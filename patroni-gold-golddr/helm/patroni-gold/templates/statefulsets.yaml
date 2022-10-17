@@ -107,6 +107,8 @@ spec:
               value: 0.0.0.0:5432
             - name: PATRONI_RESTAPI_LISTEN
               value: 0.0.0.0:8008
+            - name: CLUSTER
+              value: {{ .Values.cluster }}
           image: {{ .Values.image_registry }}/{{ .Values.license_plate }}-tools/patroni-postgres:latest
           imagePullPolicy: Always
           name: patroni
