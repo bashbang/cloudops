@@ -4,6 +4,8 @@ metadata:
   labels:
     app: {{ .Values.app_name }}
     cluster-name: {{ .Values.license_plate }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
   namespace: {{ .Values.license_plate }}-dev
 ---
@@ -13,6 +15,8 @@ metadata:
   labels:
     app: {{ .Values.app_name }}
     cluster-name: {{ .Values.license_plate }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
 rules:
   - apiGroups:
@@ -68,6 +72,8 @@ metadata:
   labels:
     app: {{ .Values.app_name }}
     cluster-name: {{ .Values.license_plate }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
   namespace: {{ .Values.license_plate }}-dev
 roleRef:
@@ -84,6 +90,8 @@ metadata:
   labels:
     app: {{ .Values.app_name }}
     cluster-name: {{ .Values.license_plate }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}-image-puller
   namespace: {{ .Values.license_plate }}-tools
 roleRef:

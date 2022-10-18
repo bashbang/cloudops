@@ -3,8 +3,9 @@ apiVersion: v1
 metadata:
   labels:
     app: {{ .Values.app_name }}
-    name: {{ .Values.app_name }}
-    cluster-name: {{ .Values.license_plate }}
+    cluster-name: {{ .Values.app_name }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}-master
 spec:
   ports:

@@ -3,7 +3,9 @@ apiVersion: apps/v1
 metadata:
   labels:
     app: {{ .Values.app_name }}
-    cluster-name: {{ .Values.license_plate }}
+    cluster-name: {{ .Values.app_name }}
+    app.kubernetes.io/name: patroni
+    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
 spec:
   podManagementPolicy: OrderedReady
@@ -18,8 +20,10 @@ spec:
       labels:
         app: {{ .Values.app_name }}
         statefulset: {{ .Values.app_name }}
-        cluster-name: {{ .Values.license_plate }}
+        cluster-name: {{ .Values.app_name }}
         app.kubernetes.io/name: patroni
+        app.kubernetes.io/component: database
+        app.kubernetes.io/managed-by: template
     spec:
       affinity:
         podAntiAffinity:
@@ -98,7 +102,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             - name: PATRONI_LOG_LEVEL
-              value: WARNING
+              value: {{ .Values.loglevel }}
             - name: PATRONI_POSTGRESQL_DATA_DIR
               value: /home/postgres/pgdata/pgroot/data
             - name: PATRONI_POSTGRESQL_PGPASS

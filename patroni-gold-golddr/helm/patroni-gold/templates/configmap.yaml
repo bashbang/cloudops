@@ -1,0 +1,17 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-config
+  namespace: {{ .Values.license_plate }}-dev
+  labels:
+    app.kubernetes.io/name: {{ .Values.app_name }}
+    cluster-name: {{ .Values.app_name }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-leader
+  namespace: {{ .Values.license_plate }}-dev
+  labels:
+    app.kubernetes.io/name: {{ .Values.app_name }}
+    cluster-name: {{ .Values.app_name }}
