@@ -30,7 +30,7 @@ jobs:
           docker push image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
       - name: Docker Tag Patroni
         run: |
-          docker tag patroni-postgres image-registry.apps.golddr.devops.gov.bc.ca/${{ secrets.OC4_GOLDDR_LICENSE_PLATE }}-tools/patroni-postgres
+          docker tag patroni-postgres image-registry.apps.golddr.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
       - name: Docker Push Patroni
         run: |
           docker push image-registry.apps.golddr.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
