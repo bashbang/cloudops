@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Pull Git Repo
         uses: actions/checkout@v3
-      - name: Login to Openshift Docker Registry
+      - name: Login to Openshift Gold Docker Registry
         uses: docker/login-action@v2
         with:
           registry: image-registry.apps.gold.devops.gov.bc.ca
@@ -22,15 +22,21 @@ jobs:
         working-directory: patroni-gold-golddr
         run: |
           docker build -t patroni-postgres -f Dockerfile .
-      - name: Docker Tag Patroni
+      - name: Docker Tag Patroni Gold
         run: |
           docker tag patroni-postgres image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
-      - name: Docker Push Patroni
+      - name: Docker Push Patroni Gold
         run: |
           docker push image-registry.apps.gold.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
-      - name: Docker Tag Patroni
+      - name: Docker Tag Patroni GoldDR
         run: |
           docker tag patroni-postgres image-registry.apps.golddr.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
-      - name: Docker Push Patroni
+      - name: Login to Openshift GoldDR Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: image-registry.apps.golddr.devops.gov.bc.ca
+          username: serviceaccount
+          password: ${{ secrets.OC4_GOLDDR_SA_TOKEN }}
+      - name: Docker Push Patroni GoldDR
         run: |
           docker push image-registry.apps.golddr.devops.gov.bc.ca/${{ secrets.OC4_GOLD_LICENSE_PLATE }}-tools/patroni-postgres
