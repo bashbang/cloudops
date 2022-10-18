@@ -30,7 +30,7 @@ if [ "${CLUSTER}" = golddr ] ;
 then cat >> /home/postgres/patroni.yml <<__EOF__
     standby_cluster:
       host: patroni-gold
-      port: 16206
+      port: 43504
       username: ${PATRONI_REPLICATION_USERNAME}
       password: ${PATRONI_REPLICATION_PASSWORD}
 __EOF__
