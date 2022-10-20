@@ -26,7 +26,7 @@ __EOF__
 if [ "${CLUSTER}" = golddr ] ;
 then cat >> /home/postgres/patroni.yml <<__EOF__
     standby_cluster:
-      host: {{ .Values.app_name }}-gold
+      host: patroni-gold
       port: 43504
       username: ${PATRONI_REPLICATION_USERNAME}
       password: ${PATRONI_REPLICATION_PASSWORD}
