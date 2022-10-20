@@ -7,7 +7,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      name: {{ .Values.app_name }}
+      app: {{ .Values.app_name }}
   ingress:
     - from:
         - namespaceSelector:

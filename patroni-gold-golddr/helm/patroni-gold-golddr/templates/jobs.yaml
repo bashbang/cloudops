@@ -1,0 +1,80 @@
+{{- if eq .Values.cluster "golddr" }}
+# TODO: Explain what this job is for and why we have RBAC inside the job manifest
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: tsc-probe
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: tsc-probe
+        image: image-registry.openshift-image-registry.svc:5000/openshift/cli
+        command: ["tail", "-f", "/dev/null"]
+      serviceAccountName: {{ .Values.app_name }}
+      restartPolicy: Never
+  backoffLimit: 4
+---
+# The Patroni config on GoldDR needs to communicate with Gold through the TransportService, but GoldDR doesn't know anything about the TransportService.
+# It's only aware of the resulting Service that's produced that talks back to Gold. So we've created a startup JOB on GoldDR that's designed to
+# query the service to get the port number for that service.  It can then inject that port number into the patroni config at pod init.
+# This service account, role and following rollbinding is to allow this new app-job user to access Services to obtain the patroni-gold port created by the TSC
+# as well as access read/write access to the secrets so that it can update the secret with the new port
+# kind: ServiceAccount
+# apiVersion: v1
+# metadata:
+#   labels:
+#     app: {{ .Values.app_name }}
+#     cluster-name: {{ .Values.license_plate }}
+#     app.kubernetes.io/name: patroni
+#     app.kubernetes.io/component: database
+#   name: {{ .Values.app_name }}-job
+#   namespace: {{ .Values.license_plate }}-dev
+# ---
+# kind: Role
+# apiVersion: rbac.authorization.k8s.io/v1
+# metadata:
+#   namespace: {{ .Values.license_plate }}-dev
+#   name: patroni-job-sa
+# rules:
+#   - apiGroups:
+#       - ''
+#     resources:
+#       - services
+#     verbs:
+#       - get
+#       - watch
+#       - list
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - configmaps
+#     verbs:
+#       - get
+#       - list
+#       - patch
+#       - update
+#       - watch
+
+# ---
+# kind: RoleBinding
+# apiVersion: rbac.authorization.k8s.io/v1
+# metadata:
+#   labels:
+#     app: {{ .Values.app_name }}
+#     cluster-name: {{ .Values.license_plate }}
+#   name: default-service-reader
+#   namespace: {{ .Values.license_plate }}-dev
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: patroni-job-sa
+# subjects:
+#   - kind: ServiceAccount
+#     name: {{ .Values.app_name }}-job
+#     namespace: {{ .Values.license_plate }}-dev
+# ---
+{{- end }}
