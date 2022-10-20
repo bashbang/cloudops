@@ -1,3 +1,5 @@
+# Both the -config and the -leader configs are produced by patroni. These enpty configs are just in place so helm can control the configs during a distroy.
+# TODO: What happens to the configs if there's an "hel upgrade" done after patroni has updated them?
 kind: ConfigMap
 apiVersion: v1
 metadata:

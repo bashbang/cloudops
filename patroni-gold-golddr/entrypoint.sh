@@ -26,8 +26,9 @@ __EOF__
 if [ "${CLUSTER}" = golddr ] ;
 then cat >> /home/postgres/patroni.yml <<__EOF__
     standby_cluster:
-      host: patroni-gold
+      host: patroni-master-gold
       port: 61240
+      sed -i '' -e "s/43504/61240/g" /home/postgres/patroni.yml
       username: ${PATRONI_REPLICATION_USERNAME}
       password: ${PATRONI_REPLICATION_PASSWORD}
 __EOF__
