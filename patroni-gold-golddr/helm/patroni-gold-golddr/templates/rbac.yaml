@@ -1,3 +1,5 @@
+# Create a service account and appropriate rules/rule bindings for our patroni implementation.
+---
 kind: ServiceAccount
 apiVersion: v1
 metadata:

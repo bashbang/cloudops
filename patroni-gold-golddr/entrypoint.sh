@@ -16,24 +16,8 @@ bootstrap:
   post_bootstrap: /usr/share/scripts/patroni/post_init.sh
   dcs:
     postgresql:
-      use_pg_rewind: true
-      parameters:
-        max_connections: ${POSTGRESQL_MAX_CONNECTIONS:-100}
-        max_prepared_transactions: ${POSTGRESQL_MAX_PREPARED_TRANSACTIONS:-0}
-        max_locks_per_transaction: ${POSTGRESQL_MAX_LOCKS_PER_TRANSACTION:-64}
-__EOF__
-
-# if [ "${CLUSTER}" = golddr ] ;
-# then cat >> /home/postgres/patroni.yml <<__EOF__
-#     standby_cluster:
-#       host: patroni-master-gold
-#       port: 61240
-#       username: ${PATRONI_REPLICATION_USERNAME}
-#       password: ${PATRONI_REPLICATION_PASSWORD}
-# __EOF__
-# fi
-
-cat >> /home/postgres/patroni.yml <<__EOF__
+      # The DCS is generally configed here, but the assocaited helm chart is seeding k8s with the
+      # patroni config directly into the configmap so this dcs is not really needed here
   initdb:
   - auth-host: md5
   - auth-local: trust

@@ -1,9 +1,17 @@
 {{- if eq .Values.cluster "golddr" }}
-# TODO: Explain what this job is for and why we have RBAC inside the job manifest
+# The Patroni config on GoldDR needs to communicate with Gold through the TransportService, but GoldDR doesn't know anything about the TransportService.
+# It's only aware of the resulting Service that's produced that talks back to Gold. So we've created a startup JOB on GoldDR that's designed to
+# query the service to get the port number for that service.  It can then inject that port number into the patroni config.
+# This id done bt updating the patroni-config configmap directly to include the TS port that the TSC created. This can only be done at runtime, not at "helm time".
+# Consideration was made to have this config done from inside the PSQL container, however this would have required the install of OC cli which
+# was felt would open a secuirty risk.
+# Additional consideration was given to creating a sidecar to do this config change. That's still a possability, however it would require additional
+# long running resoruces for the pod...that would go unused for vast majority of the pods lifetime.
+
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: tsc-probe
+  name: tsc-probe2
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-delete-policy": hook-succeeded
@@ -13,68 +21,43 @@ spec:
       containers:
       - name: tsc-probe
         image: image-registry.openshift-image-registry.svc:5000/openshift/cli
-        command: ["tail", "-f", "/dev/null"]
-      serviceAccountName: {{ .Values.app_name }}
+        command: ["/config_standby_patroni.sh"]
+        volumeMounts:
+        - name: config-standby-patroni
+          mountPath: /config_standby_patroni.sh
+          readOnly: true
+          subPath: config_standby_patroni.sh
+      serviceAccount: {{ .Values.app_name }}
       restartPolicy: Never
+      volumes:
+      - name: config-standby-patroni
+        configMap:
+          defaultMode: 448
+          name: config-standby-patroni
   backoffLimit: 4
 ---
-# The Patroni config on GoldDR needs to communicate with Gold through the TransportService, but GoldDR doesn't know anything about the TransportService.
-# It's only aware of the resulting Service that's produced that talks back to Gold. So we've created a startup JOB on GoldDR that's designed to
-# query the service to get the port number for that service.  It can then inject that port number into the patroni config at pod init.
-# This service account, role and following rollbinding is to allow this new app-job user to access Services to obtain the patroni-gold port created by the TSC
-# as well as access read/write access to the secrets so that it can update the secret with the new port
-# kind: ServiceAccount
-# apiVersion: v1
-# metadata:
-#   labels:
-#     app: {{ .Values.app_name }}
-#     cluster-name: {{ .Values.license_plate }}
-#     app.kubernetes.io/name: patroni
-#     app.kubernetes.io/component: database
-#   name: {{ .Values.app_name }}-job
-#   namespace: {{ .Values.license_plate }}-dev
-# ---
-# kind: Role
-# apiVersion: rbac.authorization.k8s.io/v1
-# metadata:
-#   namespace: {{ .Values.license_plate }}-dev
-#   name: patroni-job-sa
-# rules:
-#   - apiGroups:
-#       - ''
-#     resources:
-#       - services
-#     verbs:
-#       - get
-#       - watch
-#       - list
-#   - apiGroups:
-#       - ""
-#     resources:
-#       - configmaps
-#     verbs:
-#       - get
-#       - list
-#       - patch
-#       - update
-#       - watch
-
-# ---
-# kind: RoleBinding
-# apiVersion: rbac.authorization.k8s.io/v1
-# metadata:
-#   labels:
-#     app: {{ .Values.app_name }}
-#     cluster-name: {{ .Values.license_plate }}
-#   name: default-service-reader
-#   namespace: {{ .Values.license_plate }}-dev
-# roleRef:
-#   apiGroup: rbac.authorization.k8s.io
-#   kind: Role
-#   name: patroni-job-sa
-# subjects:
-#   - kind: ServiceAccount
-#     name: {{ .Values.app_name }}-job
-#     namespace: {{ .Values.license_plate }}-dev
-# ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-standby-patroni
+data:
+  config_standby_patroni.sh: |-
+    #!/bin/bash
+    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
+    echo '{
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "annotations": {
+                "config": "{\"postgresql\":{\"use_pg_rewind\":true,\"parameters\":{\"max_connections\":100,\"max_prepared_transactions\":0,\"max_locks_per_transaction\":64}},\"standby_cluster\":{\"host\":\"patroni-master-gold\",\"port\":'$tsc_port',\"username\":\"replication\",\"password\":\"{{ .Values.replication_password }}\"}}"
+            },
+            "labels": {
+                "app.kubernetes.io/name": "patroni",
+                "cluster-name": "patroni"
+            },
+            "name": "patroni-config",
+            "namespace": "c57b11-dev"
+        }
+    }' | oc replace -f -
+---
 {{- end }}

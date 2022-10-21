@@ -1,5 +1,5 @@
 # This is a special manifest that's for Gold/GoldDR BCGov't only.  It's a custom API called TransportServiceClaim (TSC) that produces a TransportService (TS).
-# It basically create a service tunnel between Gold and GoldDR to allow private data transfer and communications between the two clusters.
+# It basically creates a service tunnel between Gold and GoldDR to allow private data transfer and communications between the two clusters.
 # We use this tunnel to keep the psql servers in sync.
 # When te TSC is deployed onto Gold it will create a service that will communicate with GoldDR.  It will also create a Service on GoldDR to communicate to Gold.
 # NOTE: This is only to be run on Gold.

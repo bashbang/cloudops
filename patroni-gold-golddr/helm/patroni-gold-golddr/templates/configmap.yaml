@@ -1,13 +1,6 @@
-# Both the -config and the -leader configs are produced by patroni. These enpty configs are just in place so helm can control the configs during a distroy.
-# TODO: What happens to the configs if there's an "hel upgrade" done after patroni has updated them?
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: {{ .Values.app_name }}-config
-  namespace: {{ .Values.license_plate }}-dev
-  labels:
-    app.kubernetes.io/name: {{ .Values.app_name }}
-    cluster-name: {{ .Values.app_name }}
+# Although patroni does indeed create the configmaps, I wanted to have more control over it within helm during deployment so added both
+# the -config and the -leader configmaps manually through helm. These configs allow helm can control the configs during a distroy.
+# it also has the advantage of allowing me to use the same template for both Gold and GoldDR which have differing configs.
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -17,3 +10,18 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.app_name }}
     cluster-name: {{ .Values.app_name }}
+---
+# It should be noted here that the config is the same for Gold and GoldDR.  There is however a JOB that is run on "install" by helm that
+# will override this configmap with the appropriate settings.  This is done mostly to deal with the fact that at helm init we don't
+# know the port number for the TCS and can really only determine it at runtime.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-config
+  namespace: {{ .Values.license_plate }}-dev
+  labels:
+    app.kubernetes.io/name: {{ .Values.app_name }}
+    cluster-name: {{ .Values.app_name }}
+  annotations:
+    config: >-
+      {"postgresql":{"use_pg_rewind":true,"parameters":{"max_connections":100,"max_prepared_transactions":0,"max_locks_per_transaction":64}}}
