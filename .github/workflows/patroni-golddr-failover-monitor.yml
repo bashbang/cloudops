@@ -44,18 +44,19 @@ jobs:
           status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
           if [[ "$status" == "running" ]];
           then
-            echo "RUNNING"
+            echo "Gold is running as expected"
             exit 0
           else
-            echo "BROKEN"
+            echo "Gold is broken, failover to GoldDR"
             exit 1
           fi
 
   Failover:
     name: Failover
     runs-on: ubuntu-latest
-    environment: development
+    environment: GDX-Gold
     needs: [ProbeGold]
+    # TODO: make this a != when ready...this is just for testing purposes.
     if: ${{ needs.ProbeGold.result == 'success' }}
 
     steps:
@@ -76,20 +77,13 @@ jobs:
           oc_version: '4.6'
 
       - name: Probe GoldDR
-        # Determine if it's already switched to leader
         run: |
-          if [ true ];
+          status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
+          if [[ "$status" == "running" ]];
           then
-            echo "RUNNING"
+            echo "GoldDR is already the leader, do nothing."
+            exit 0
           else
-            echo "BROKEN"
-          fi
-
-      - name: Update GoldDR config
-        run: |
-          if [ true ];
-          then
-            echo "RUNNING"
-          else
-            echo "BROKEN"
+            echo "GoldDR config needs to be updated to "
+            exit 1
           fi
