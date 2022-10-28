@@ -8,9 +8,9 @@ name: Patroni GoldDR Failover Monitor
 
 # TODO: manually produce a Github secret with a service account token from both Gold and GoldDR to use for doing an OC Login
 #     : as well as a licenseplate (same LP for gold and golddr so only need the one)
-#     : GOLD_TOOLS_SA_GHA_TOKEN
-#     : GOLDDR_TOOLS_SA_GHA_TOKEN
-#     : GOLD_LICENSE_PLATE    (eg: abd123-dev) - since this var is in a GHA environment I opted for the fill LP rather than just the prefix.
+#     : OC4_GOLD_SA_TOKEN
+#     : OC4_GOLDDR_SA_TOKEN
+#     : OC4_GOLD_LICENSE_PLATE    (eg: abd123-dev) - since this var is in a GHA environment I opted for the fill LP rather than just the prefix.
 
 # Note: Suggest doing the above vars as Github "environments" to allow for easier reference between dev/test/prod
 
@@ -42,7 +42,7 @@ jobs:
       - name: Probe Gold
         run: |
           $status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
-          if [[ $statue == "running"]];
+          if [ $status == "running" ];
           then
             echo "RUNNING"
             exit 0
