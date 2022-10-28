@@ -82,8 +82,6 @@ jobs:
           if [[ "$status" == "running" ]];
           then
             echo "GoldDR is already the leader, do nothing."
-            exit 0
           else
-            echo "GoldDR config needs to be updated to "
-            exit 1
+            echo "GoldDR config needs to be updated to be leader"
           fi
