@@ -36,7 +36,7 @@ jobs:
 
       - name: Probe Gold
         run: |
-          $status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" ') == "running"`
+          $status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
           if [[ $statue == "running"]];
           then
             echo "RUNNING"
