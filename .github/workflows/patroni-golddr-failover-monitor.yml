@@ -1,0 +1,85 @@
+name: Patroni GoldDR Failover Monitor
+
+# This workflow probes the Gold cluster to see if the config map defined patroni leader is accepting psql connections and patroni has it reporting as a running state.
+# If it does not result as running this workflow will update the patroni config on GoldDR to convert it from a "Standby Leader" to a "Leader"
+# Assumptions:
+#  - the Gold state of "running" assumes that the leader patroni is a read/write status.
+#  - the application has been switched by some other method so the application running on GoldDR will be pointing to use GoldDR's now "Leader" database. We do not use the GSLB in this scenario
+
+# TODO: manually produce a Github secret with a service account token from both Gold and GoldDR to use for doing an OC Login
+#     : as well as a licenseplate (same LP for gold and golddr so only need the one)
+#     : GOLD_TOOLS_SA_GHA_TOKEN
+#     : GOLDDR_TOOLS_SA_GHA_TOKEN
+#     : GOLD_LICENSE_PLATE    (eg: abd123-dev) - since this var is in a GHA environment I opted for the fill LP rather than just the prefix.
+
+# Note: Suggest doing the above vars as Github "environments" to allow for easier reference between dev/test/prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ProbeGold:
+    name: ProbeGold
+    runs-on: ubuntu-latest
+    # Generally this would be development/testing/production
+    environment: GDX-Gold
+    steps:
+      - name: Openshift GOLD Cluster Login
+        uses: redhat-actions/oc-login@v1.1
+        with:
+          # to get this info do a "oc whoami --show-server" -
+          openshift_server_url: https://api.gold.devops.gov.bc.ca:6443
+          # get this from the SA secret, it's one of the 4 generated secrets. I'm using the pipeline SA for this workflow.
+          openshift_token: ${{ secrets.OC4_GOLD_SA_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ secrets.OC4_GOLD_LICENSE_PLATE}}
+
+      - name: Probe Gold
+        run: |
+          $status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" ') == "running"`
+          if [[ $statue == "running"]];
+          then
+            echo "RUNNING"
+            exit 0
+          else
+            echo "BROKEN"
+            exit 1
+          fi
+
+  Failover:
+    name: Failover
+    runs-on: ubuntu-latest
+    environment: development
+    needs: [ProbeGold]
+    if: ${{ needs.ProbeGold.result == 'success' }}
+
+    steps:
+      - name: Openshift GOLDDR Cluster Login
+        uses: redhat-actions/oc-login@v1.1
+        with:
+          # to get this info do a "oc whoami --show-server" -
+          openshift_server_url: https://api.golddr.devops.gov.bc.ca:6443
+          # get this from the SA secret, it's one of the 4 generated secrets. I'm using the pipeline SA for this workflow.
+          openshift_token: ${{ secrets.OC4_GOLDDR_SA_TOKEN }}
+          insecure_skip_tls_verify: true
+          # Gold and GoldDR license plates are the same so just using GOLD here.
+          namespace: ${{ secrets.OC4_GOLD_LICENSE_PLATE}}
+
+      - name: Probe GoldDR
+        # Determine if it's already switched to leader
+        run: |
+          if [ true ];
+          then
+            echo "RUNNING"
+          else
+            echo "BROKEN"
+          fi
+
+      - name: Update GoldDR config
+        run: |
+          if [ true ];
+          then
+            echo "RUNNING"
+          else
+            echo "BROKEN"
+          fi

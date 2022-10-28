@@ -113,7 +113,8 @@ spec:
               value: 0.0.0.0:8008
             - name: CLUSTER
               value: {{ .Values.cluster }}
-          image: {{ .Values.image_registry }}/{{ .Values.license_plate }}-tools/patroni-postgres:latest
+          # image: {{ .Values.image_registry }}/{{ .Values.license_plate }}-tools/patroni-postgres:latest
+          image: image-registry.openshift-image-registry.svc:5000/bcgov/patroni-postgres:12.4-latest
           imagePullPolicy: Always
           name: patroni
           ports:
@@ -140,12 +141,22 @@ spec:
           volumeMounts:
             - mountPath: /home/postgres/pgdata
               name: postgresql
+            - name: config-{{ .Values.app_name }}-entrypoint
+              mountPath: /usr/bin/entrypoint.sh
+              readOnly: true
+              subPath: entrypoint.sh
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       serviceAccountName: {{ .Values.app_name }}
       terminationGracePeriodSeconds: 0
+      volumes:
+      - name: config-{{ .Values.app_name }}-entrypoint
+        configMap:
+          defaultMode: 448
+          name: config-{{ .Values.app_name }}-entrypoint
+
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:

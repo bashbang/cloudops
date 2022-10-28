@@ -2,7 +2,7 @@ app_name: patroni
 license_plate: c57b11
 environment: dev
 cluster: gold
-replicas: 1
+replicas: 3
 image_registry: image-registry.openshift-image-registry.svc:5000
 stateful_requests_cpu: 250m
 stateful_requests_memory: 500Mi
