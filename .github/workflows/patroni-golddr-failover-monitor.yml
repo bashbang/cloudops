@@ -78,10 +78,11 @@ jobs:
 
       - name: Probe GoldDR
         run: |
-          status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
-          if [[ "$status" == "running" ]];
+          # status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
+          status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Standby Leader\") | .Role" '`
+          if [[ "$status" == "Standby Leader" ]];
           then
-            echo "GoldDR is already the leader, do nothing."
-          else
             echo "GoldDR config needs to be updated to be leader"
+          else
+            echo "GoldDR is not in standby, do nothing."
           fi
