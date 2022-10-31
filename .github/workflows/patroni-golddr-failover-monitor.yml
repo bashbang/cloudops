@@ -83,6 +83,7 @@ jobs:
           if [[ "$status" == "Standby Leader" ]];
           then
             echo "GoldDR config needs to be updated to be leader"
+            oc get configmap patroni-config -o json | sed -e "s/standby_cluster/null/g" | oc replace -f -
           else
             echo "GoldDR is not in standby, do nothing."
           fi
