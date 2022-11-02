@@ -126,16 +126,13 @@ data:
     if [[ "$health_status" == "unhealthy" ]];
     then
       echo "Gold is unhealthy..."
-      leader=`oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p'`
-      cluster_info=`oc exec $leader -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json '`
-      status=`$cluster_info | jq -r ".[] | select(.Role == \"Standby Leader\") | .Role"`
+      status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Standby Leader\") | .Role" '`
       if [[ "$status" == "Standby Leader" ]];
       then
         echo "GoldDR config needs to be updated to be leader"
         oc get configmap patroni-config -o json | sed -e "s/standby_cluster/null/g" | oc replace -f -
       else
-        status=`$cluster_info | jq -r ".[] | select(.Member == \"$leader\") | .Role"`
-        echo "GoldDR is not in standby, it is: $status. Do nothing."
+        echo "GoldDR is not in standby. Do nothing."
       fi
     else
       echo "Gold is Healthy - do nothing"

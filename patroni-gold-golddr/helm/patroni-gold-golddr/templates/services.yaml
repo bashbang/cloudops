@@ -14,6 +14,6 @@ spec:
   selector:
     cluster-name: {{ .Values.app_name }}
     role: master
-    app.kubernetes.io/name: patroni
+    app.kubernetes.io/name: {{ .Values.app_name }}
   sessionAffinity: None
   type: ClusterIP

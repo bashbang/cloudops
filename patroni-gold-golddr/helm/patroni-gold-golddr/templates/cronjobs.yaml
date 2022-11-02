@@ -23,7 +23,7 @@ spec:
               args:
                 - /bin/sh
                 - '-c'
-                - 'tail -f /dev/null'
+                - '/failover.sh'
               volumeMounts:
                 - name: {{ .Values.app_name }}-intercom
                   mountPath: /intercom
