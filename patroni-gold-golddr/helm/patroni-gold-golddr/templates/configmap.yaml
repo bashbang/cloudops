@@ -9,6 +9,7 @@ metadata:
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
     {{- include "chart.common-labels" . }}
+
 ---
 # It should be noted here that the config is the same for Gold and GoldDR.  There is however a JOB that is run on "install" by helm that
 # will override this configmap with the appropriate settings.  This is done mostly to deal with the fact that at helm init we don't
@@ -23,6 +24,7 @@ metadata:
   annotations:
     config: >-
       {"postgresql":{"use_pg_rewind":true,"parameters":{"max_connections":100,"max_prepared_transactions":0,"max_locks_per_transaction":64}}}
+
 ---
 # this is the entrypoint script that will override the default one in the ppatroni-postgres image.
 # TODO: update the code in the upstream image to include hardcoding the 10.95 and 10.97 ranges for the pghba
@@ -84,7 +86,9 @@ data:
     export POD_NAME=$PATRONI_NAME
 
     exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
+
 ---
+{{- if eq .Values.cluster "golddr" }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -110,6 +114,9 @@ data:
       exit 0
     fi
 ---
+{{- end }}
+
+{{- if eq .Values.cluster "golddr" }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -138,6 +145,9 @@ data:
       echo "Gold is Healthy - do nothing"
     fi
 ---
+{{- end }}
+
+{{- if eq .Values.cluster "golddr" }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -151,6 +161,8 @@ data:
     tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
     echo "$tsc_port" > /intercom/tsc_port
 ---
+{{- end }}
+
 {{- if eq .Values.cluster "golddr" }}
 apiVersion: v1
 kind: ConfigMap
@@ -178,5 +190,8 @@ data:
             "namespace": "c57b11-dev"
         }
     }' | oc replace -f -
+
+    # This is only needed at init...so once it's run, self-distruct.
+    oc delete configmap config-standby-patroni
 {{- end }}
 ---
