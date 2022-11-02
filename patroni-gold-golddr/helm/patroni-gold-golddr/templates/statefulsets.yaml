@@ -1,12 +1,10 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  labels:
-    app: {{ .Values.app_name }}
-    cluster-name: {{ .Values.app_name }}
-    app.kubernetes.io/name: patroni
-    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
 spec:
   podManagementPolicy: OrderedReady
   replicas: {{ .Values.replicas }}
@@ -18,12 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Values.app_name }}
         statefulset: {{ .Values.app_name }}
-        cluster-name: {{ .Values.app_name }}
-        app.kubernetes.io/name: patroni
-        app.kubernetes.io/component: database
-        app.kubernetes.io/managed-by: template
     spec:
       affinity:
         podAntiAffinity:
@@ -139,8 +132,8 @@ spec:
               command:
                 - /usr/share/scripts/patroni/health_check.sh
           volumeMounts:
-            - mountPath: /home/postgres/pgdata
-              name: postgresql
+            - name: postgresql
+              mountPath: /home/postgres/pgdata
             - name: config-{{ .Values.app_name }}-entrypoint
               mountPath: /usr/bin/entrypoint.sh
               readOnly: true
@@ -154,8 +147,8 @@ spec:
       volumes:
       - name: config-{{ .Values.app_name }}-entrypoint
         configMap:
-          defaultMode: 448
           name: config-{{ .Values.app_name }}-entrypoint
+          defaultMode: 448
 
   updateStrategy:
     type: RollingUpdate

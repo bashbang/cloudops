@@ -6,10 +6,9 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Values.app_name }}-leader
-  namespace: {{ .Values.license_plate }}-dev
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
-    app.kubernetes.io/name: {{ .Values.app_name }}
-    cluster-name: {{ .Values.app_name }}
+    {{- include "chart.common-labels" . }}
 ---
 # It should be noted here that the config is the same for Gold and GoldDR.  There is however a JOB that is run on "install" by helm that
 # will override this configmap with the appropriate settings.  This is done mostly to deal with the fact that at helm init we don't
@@ -18,10 +17,9 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Values.app_name }}-config
-  namespace: {{ .Values.license_plate }}-dev
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
-    app.kubernetes.io/name: {{ .Values.app_name }}
-    cluster-name: {{ .Values.app_name }}
+    {{- include "chart.common-labels" . }}
   annotations:
     config: >-
       {"postgresql":{"use_pg_rewind":true,"parameters":{"max_connections":100,"max_prepared_transactions":0,"max_locks_per_transaction":64}}}
@@ -32,10 +30,9 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: config-{{ .Values.app_name }}-entrypoint
-  namespace: {{ .Values.license_plate }}-dev
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
-    app.kubernetes.io/name: {{ .Values.app_name }}
-    cluser-name: {{ .Values.app_name }}
+    {{- include "chart.common-labels" . }}
 data:
   entrypoint.sh: |-
     #!/bin/bash
@@ -87,4 +84,102 @@ data:
     export POD_NAME=$PATRONI_NAME
 
     exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-probe
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
+data:
+  probe.sh: |-
+    #!/bin/bash
+
+    tsc_port=`cat /intercom/tsc_port`
+
+    /usr/bin/pg_isready -Upostgres -h {{ .Values.app_name }}-master-gold -p $tsc_port
+    if [ $? -eq 0 ]
+    then
+      echo "Gold is running as expected"
+      echo "healthy" > /intercom/health
+      exit 0
+    else
+      echo "Gold is broken, failover to GoldDR"
+      echo "unhealthy" > /intercom/health
+      exit 0
+    fi
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-failover
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
+data:
+  failover.sh: |-
+    #!/bin/bash
+
+    health_status=`cat /intercom/health`
+
+    if [[ "$health_status" == "unhealthy" ]];
+    then
+      echo "Gold is unhealthy..."
+      leader=`oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p'`
+      cluster_info=`oc exec $leader -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json '`
+      status=`$cluster_info | jq -r ".[] | select(.Role == \"Standby Leader\") | .Role"`
+      if [[ "$status" == "Standby Leader" ]];
+      then
+        echo "GoldDR config needs to be updated to be leader"
+        oc get configmap patroni-config -o json | sed -e "s/standby_cluster/null/g" | oc replace -f -
+      else
+        status=`$cluster_info | jq -r ".[] | select(.Member == \"$leader\") | .Role"`
+        echo "GoldDR is not in standby, it is: $status. Do nothing."
+      fi
+    else
+      echo "Gold is Healthy - do nothing"
+    fi
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.app_name }}-getgoldport
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
+data:
+  getgoldport.sh: |-
+    #!/bin/bash
+    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
+    echo "$tsc_port" > /intercom/tsc_port
+---
+{{- if eq .Values.cluster "golddr" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-standby-patroni
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
+data:
+  config_standby_patroni.sh: |-
+    #!/bin/bash
+    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
+    echo '{
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "annotations": {
+                "config": "{\"postgresql\":{\"use_pg_rewind\":true,\"parameters\":{\"max_connections\":100,\"max_prepared_transactions\":0,\"max_locks_per_transaction\":64}},\"standby_cluster\":{\"host\":\"patroni-master-gold\",\"port\":'$tsc_port',\"username\":\"replication\",\"password\":\"{{ .Values.replication_password }}\"}}"
+            },
+            "labels": {
+                "app.kubernetes.io/name": "patroni",
+                "cluster-name": "patroni"
+            },
+            "name": "patroni-config",
+            "namespace": "c57b11-dev"
+        }
+    }' | oc replace -f -
+{{- end }}
 ---

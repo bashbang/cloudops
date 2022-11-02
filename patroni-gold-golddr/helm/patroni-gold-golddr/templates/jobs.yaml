@@ -5,13 +5,16 @@
 # This id done bt updating the patroni-config configmap directly to include the TS port that the TSC created. This can only be done at runtime, not at "helm time".
 # Consideration was made to have this config done from inside the PSQL container, however this would have required the install of OC cli which
 # was felt would open a secuirty risk.
-# Additional consideration was given to creating a sidecar to do this config change. That's still a possability, however it would require additional
+# Additional consideration was given to creating a init sidecar to do this config change. That's still a possability, however it would require additional
 # long running resoruces for the pod...that would go unused for vast majority of the pods lifetime.
 
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: tsc-probe2
+  name: tsc-probe
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
@@ -35,29 +38,5 @@ spec:
           defaultMode: 448
           name: config-standby-patroni
   backoffLimit: 4
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-standby-patroni
-data:
-  config_standby_patroni.sh: |-
-    #!/bin/bash
-    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
-    echo '{
-        "apiVersion": "v1",
-        "kind": "ConfigMap",
-        "metadata": {
-            "annotations": {
-                "config": "{\"postgresql\":{\"use_pg_rewind\":true,\"parameters\":{\"max_connections\":100,\"max_prepared_transactions\":0,\"max_locks_per_transaction\":64}},\"standby_cluster\":{\"host\":\"patroni-master-gold\",\"port\":'$tsc_port',\"username\":\"replication\",\"password\":\"{{ .Values.replication_password }}\"}}"
-            },
-            "labels": {
-                "app.kubernetes.io/name": "patroni",
-                "cluster-name": "patroni"
-            },
-            "name": "patroni-config",
-            "namespace": "c57b11-dev"
-        }
-    }' | oc replace -f -
 ---
 {{- end }}

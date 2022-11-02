@@ -1,5 +1,8 @@
 name: Patroni GoldDR Failover Monitor
 
+# This is a sample Github Workflow to act as a probe
+# It's been tested but the intention isn't to use it in this example, we've opted to use a GoldDR job instead to do the Gold Probing.
+
 # This workflow probes the Gold cluster to see if the config map defined patroni leader is accepting psql connections and patroni has it reporting as a running state.
 # If it does not result as running this workflow will update the patroni config on GoldDR to convert it from a "Standby Leader" to a "Leader"
 # Assumptions:
@@ -10,11 +13,14 @@ name: Patroni GoldDR Failover Monitor
 #     : as well as a licenseplate (same LP for gold and golddr so only need the one)
 #     : OC4_GOLD_SA_TOKEN
 #     : OC4_GOLDDR_SA_TOKEN
-#     : OC4_GOLD_LICENSE_PLATE    (eg: abd123-dev) - since this var is in a GHA environment I opted for the fill LP rather than just the prefix.
+#     : OC4_GOLD_LICENSE_PLATE    (eg: abd123-dev) - since this var is in a GHA environment I opted for the full LP rather than just the prefix.
 
 # Note: Suggest doing the above vars as Github "environments" to allow for easier reference between dev/test/prod
 
 on:
+  # one method could be to run this job every minutes or five minutes and have it manage the failover
+  # schedule:
+  #   - cron: "* * * * *"
   workflow_dispatch:
 
 jobs:
@@ -78,7 +84,6 @@ jobs:
 
       - name: Probe GoldDR
         run: |
-          # status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Leader\") | .State" '`
           status=`oc exec $(oc describe cm patroni-leader|sed -n -e 's/^.*leader: //p') -- /bin/bash -c '/usr/bin/pg_isready -q && /usr/local/bin/patronictl list --format=json | jq -r ".[] | select(.Role == \"Standby Leader\") | .Role" '`
           if [[ "$status" == "Standby Leader" ]];
           then

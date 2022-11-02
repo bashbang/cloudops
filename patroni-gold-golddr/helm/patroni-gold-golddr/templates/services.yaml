@@ -1,12 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  labels:
-    app: {{ .Values.app_name }}
-    cluster-name: {{ .Values.app_name }}
-    app.kubernetes.io/name: patroni
-    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}-master
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
 spec:
   ports:
     - name: 5432-tcp

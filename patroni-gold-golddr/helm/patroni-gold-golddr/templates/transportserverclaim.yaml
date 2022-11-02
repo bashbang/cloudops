@@ -8,7 +8,9 @@ kind: TransportServerClaim
 apiVersion: porter.devops.gov.bc.ca/v1alpha1
 metadata:
   name: {{ .Values.app_name }}-postgres-tsc
-  namespace: {{ .Values.license_plate }}-dev
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
 spec:
   monitor:
     interval: 10

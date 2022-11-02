@@ -4,8 +4,7 @@ metadata:
   name: postgresql-{{ .Values.app_name }}-0
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
-    app: patroni
-    statefulset: patroni
+    {{- include "chart.common-labels" . }}
 spec:
   accessModes:
     - ReadWriteOnce

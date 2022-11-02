@@ -3,23 +3,21 @@
 kind: ServiceAccount
 apiVersion: v1
 metadata:
+  name: {{ .Values.app_name }}
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
-    app: {{ .Values.app_name }}
+    {{- include "chart.common-labels" . }}
     cluster-name: {{ .Values.license_plate }}
     app.kubernetes.io/name: patroni
     app.kubernetes.io/component: database
-  name: {{ .Values.app_name }}
-  namespace: {{ .Values.license_plate }}-dev
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app: {{ .Values.app_name }}
-    cluster-name: {{ .Values.license_plate }}
-    app.kubernetes.io/name: patroni
-    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
 rules:
   - apiGroups:
       - ""
@@ -67,17 +65,27 @@ rules:
       - patch
       - update
       - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  labels:
-    app: {{ .Values.app_name }}
-    cluster-name: {{ .Values.license_plate }}
-    app.kubernetes.io/name: patroni
-    app.kubernetes.io/component: database
   name: {{ .Values.app_name }}
-  namespace: {{ .Values.license_plate }}-dev
+  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
+  labels:
+    {{- include "chart.common-labels" . }}
+    app.kubernetes.io/component: database
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -85,22 +93,3 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.app_name }}
----
-# kind: RoleBinding
-# apiVersion: rbac.authorization.k8s.io/v1
-# metadata:
-#   labels:
-#     app: {{ .Values.app_name }}
-#     cluster-name: {{ .Values.license_plate }}
-#     app.kubernetes.io/name: patroni
-#     app.kubernetes.io/component: database
-#   name: {{ .Values.app_name }}-image-puller
-#   namespace: {{ .Values.license_plate }}-tools
-# roleRef:
-#   apiGroup: rbac.authorization.k8s.io
-#   kind: ClusterRole
-#   name: system:image-puller
-# subjects:
-#   - kind: ServiceAccount
-#     name: {{ .Values.app_name }}
-#     namespace: {{ .Values.license_plate }}-dev
