@@ -9,7 +9,7 @@ To failback from GoldDR to Gold after an incident.
 - Update the config-patroni configmap to use the "Standby Leader" config (you can find a sample of this in /patroni-gold-golddr/helm/patroni-gold-golddr/README.md in this repo) It will likely need to be altered to use the correct TS as the names I think are different.
 - turn on Gold's PSQL to 1 pod
 - terminal into the PSQL and validate the config with ```patronictl list```
-- confirm the syncronization is occuring and/or complete
+- confirm the synchronization is occuring and/or complete
 - once the sync is complete you'll need to work out the timing of the DB fail back and the application failback.
 - to toggle the DB back to Gold, NULL the "Standby Leader" field in the config (you can find a sample of this in /patroni-gold-golddr/helm/patroni-gold-golddr/README.md in this repo). This will promote Gold back to being a Leader
 - At this point you'll need to get GoldDR back into sync.
