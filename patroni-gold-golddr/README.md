@@ -36,3 +36,10 @@ A github workflow was created that will monitor Gold for uptime. This workflow w
 
 # Fail Back
 There are no current plans to automate the switch back to Gold. TODO: However we will likely create a procedure and manual workflow to taggle the tag back to Gold from GoldDR.
+
+# Things discovered during development & deployment
+During the development of this chart the infrastructure was torn down and rebuilt from scratch each time.  Things that didn't get torn down were the PVCs since they're generally holding DB data we'd not want to accidently have them torn down in a production environment.  This would have to me manually distroyed during developemnt. From time to time we didn't tear down the PVC allowing PSQL to re-connect to the db.  In these cases we would run into unusual behavour with the syncronization and sometimes would have challenges bring the DB up after it was deployed. We didn't look into this in any detail but are suspect that the WAL files have something to do with it. Possibly there's a state file being stored that's causing the issue. Once we move this initial implementation into a more real environment we expect we'll experience these problems again and be forced to do a deeper investigation.
+
+# Assumptions
+- This deals with the DB failover only. It does not consider an automated failback.
+- This does not consider the application failover or failback. It assumes that the GSLB will be in place to fail over the application. There is a possibility the GSLB won't switch over the application, yet the PSQL will fail over to GoldDR. This could prove to be a problem. In theory if this were to happen Gold would continue to work so you'd not experience any issues, however it would sever the sync procedure and GoldDR would be stood up as a second Leader and of course then be out of sync with Gold. It would also do this silently. It would be a good idea to include an alert/alarm of some sort that would inform admins when a GoldDR failover occurred.
