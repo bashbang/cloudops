@@ -62,7 +62,7 @@ data:
             max_locks_per_transaction: ${POSTGRESQL_MAX_LOCKS_PER_TRANSACTION:-64}
       initdb:
       - auth-host: md5
-      - auth-local: trust
+      - auth-local: md5
       - encoding: UTF8
       - locale: en_US.UTF-8
       - data-checksums

@@ -10,5 +10,4 @@ stateful_limit_cpu: 500m
 stateful_limit_memory: 1Gi
 volume_size: 1Gi
 replication_password: testing123
-superuser_password: test456
 loglevel: WARNING # CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET: use WARNING

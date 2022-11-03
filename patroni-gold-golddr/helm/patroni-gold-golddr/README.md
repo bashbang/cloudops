@@ -1,8 +1,6 @@
 TODO Notes:
 - the pvc is created here by helm, but there's also a template in the stateful set that wishes to create the PVC. Maybe this should be changed and only created with helm?
-- the passwords are hard coded in the values files.  Gold and GoldDR need to have the same replication uid/pwd. If we were to use random passwords in Helm and Gold were deployed, how would GoldDR obtain that information for its config? We could OC login into Gold from GoldDR but that would then require GoldDR to have a service account with permissions to access secrets (yuck). We can't use the TransportService (TS) to tunnel into Gold since it's dedicated to the PSQL. Perhaps we could create a second TS but that seems overkill and it still grants access to Gold from GoldDR into secrets (again, yuck). The best idea we've had is to use the Vault Service (Platform Services offers a HashiCorp Vault service), however we don't have access to a Vault that could be used for testing/development.
-- Update the config to generate a random "postgres" password and store in the secrets.
-
+- the replication password is hard coded in the values files.  Gold and GoldDR need to have the same replication uid/pwd. If we were to use random passwords in Helm and Gold were deployed, how would GoldDR obtain that information for its config? We could OC login into Gold from GoldDR but that would then require GoldDR to have a service account with permissions to access secrets (yuck). We can't use the TransportService (TS) to tunnel into Gold since it's dedicated to the PSQL. Perhaps we could create a second TS but that seems overkill and it still grants access to Gold from GoldDR into secrets (again, yuck). The best idea we've had is to use the Vault Service (Platform Services offers a HashiCorp Vault service), however we don't have access to a Vault that could be used for testing/development.
 
 # CLI help
 OC Command to get the leader that's listed in the configmap:

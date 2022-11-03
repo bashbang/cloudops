@@ -59,12 +59,12 @@ spec:
             - name: PATRONI_SUPERUSER_USERNAME
               valueFrom:
                 secretKeyRef:
-                  key: superuser-username
+                  key: superuseruid
                   name: {{ .Values.app_name }}-creds
             - name: PATRONI_SUPERUSER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: superuser-password
+                  key: superuserpwd
                   name: {{ .Values.app_name }}-creds
             - name: PATRONI_REPLICATION_USERNAME
               valueFrom:
