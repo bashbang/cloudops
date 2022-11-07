@@ -12,8 +12,9 @@ spec:
       protocol: TCP
       targetPort: 5432
   selector:
-    role: master
-    app: {{ .Values.app_name }}
     cluster-name: {{ .Values.app_name }}
+    role: master
+    app.kubernetes.io/name: {{ .Values.app_name }}
+    app: {{ .Values.app_name }}
   sessionAffinity: None
   type: ClusterIP

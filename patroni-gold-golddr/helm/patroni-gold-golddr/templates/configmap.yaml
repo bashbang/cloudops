@@ -1,6 +1,7 @@
 # Although patroni does indeed create the configmaps, I wanted to have more control over it within helm during deployment so added both
 # the -config and the -leader configmaps manually through helm. These configs allow helm can control the configs during a distroy.
 # it also has the advantage of allowing me to use the same template for both Gold and GoldDR which have differing configs.
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -87,8 +88,7 @@ data:
     export KUBERNETES_NAMESPACE=$PATRONI_KUBERNETES_NAMESPACE
     export POD_NAME=$PATRONI_NAME
 
-    exec tail -f /dev/null
-    # exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
+    exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
 
 ---
 {{- if eq .Values.cluster "golddr" }}
