@@ -1,5 +1,5 @@
 TODO Notes:
-- the pvc is created here by helm, but there's also a template in the stateful set that wishes to create the PVC. Maybe this should be changed and only created with helm?
+- the pvc is created here by helm, but there's also a template in the stateful set that wishes to create the PVC. Maybe this should be changed and only created with helm? Since we know we have redundant storage behind the PCV we don't really need to have a Volume for each patroni instance? Could we just have a single volume and share it between pod instances? The leader is the only one that can write and the reads are really only there for fallback. If the app were to use the read replicas to offload the leader I'd think that would only offload POD performance and not Storage performance, so sharing the same PVC would be acceptable. Run it by (Cailey)[https://github.com/caggles] for an opinion.
 - the replication password is hard coded in the values files.  Gold and GoldDR need to have the same replication uid/pwd. If we were to use random passwords in Helm and Gold were deployed, how would GoldDR obtain that information for its config? We could OC login into Gold from GoldDR but that would then require GoldDR to have a service account with permissions to access secrets (yuck). We can't use the TransportService (TS) to tunnel into Gold since it's dedicated to the PSQL. Perhaps we could create a second TS but that seems overkill and it still grants access to Gold from GoldDR into secrets (again, yuck). The best idea we've had is to use the Vault Service (Platform Services offers a HashiCorp Vault service), however we don't have access to a Vault that could be used for testing/development.
 
 # CLI help
@@ -66,7 +66,7 @@ tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
 }' | oc replace -f -
 ```
 
-This is the raw "Standby Leader" config. This was used a few times during testing to force a cluster into standby mode. It was also used on Gold to allow for fail back.
+This is the raw "Standby Leader" config. This was used a few times during testing to force a cluster into standby mode. It was also used on Gold to allow to fail back.
 ```
 {"postgresql":{"use_pg_rewind":true,"parameters":{"max_connections":100,"max_prepared_transactions":0,"max_locks_per_transaction":64}},"standby_cluster":{"host":"patroni-master-gold","port":53647,"username":"replication","password":"testing123"}}
 ```
