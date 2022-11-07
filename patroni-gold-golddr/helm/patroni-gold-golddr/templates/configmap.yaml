@@ -21,17 +21,13 @@ metadata:
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
     {{- include "chart.common-labels" . }}
-  annotations:
-    config: >-
-      {"postgresql":{"use_pg_rewind":true,"parameters":{"max_connections":100,"max_prepared_transactions":0,"max_locks_per_transaction":64}}}
 
 ---
-# this is the entrypoint script that will override the default one in the ppatroni-postgres image.
-# TODO: update the code in the upstream image to include hardcoding the 10.95 and 10.97 ranges for the pghba
+# this is the entrypoint script that the psql cotainer users at bootup
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: config-{{ .Values.app_name }}-entrypoint
+  name: {{ .Values.app_name }}-entrypoint
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
     {{- include "chart.common-labels" . }}
@@ -50,6 +46,8 @@ data:
     mkdir -p "$PATRONI_POSTGRESQL_DATA_DIR"
     chmod 700 "$PATRONI_POSTGRESQL_DATA_DIR"
 
+    tsc_port=`cat /intercom/tsc_port`
+
     cat > /home/postgres/patroni.yml <<__EOF__
     bootstrap:
       post_bootstrap: /usr/share/scripts/patroni/post_init.sh
@@ -60,6 +58,11 @@ data:
             max_connections: ${POSTGRESQL_MAX_CONNECTIONS:-100}
             max_prepared_transactions: ${POSTGRESQL_MAX_PREPARED_TRANSACTIONS:-0}
             max_locks_per_transaction: ${POSTGRESQL_MAX_LOCKS_PER_TRANSACTION:-64}
+{{- if eq .Values.cluster "golddr" }}
+        standby_cluster:
+            host: patroni-master-gold
+            port: $tsc_port
+{{- end }}
       initdb:
       - auth-host: md5
       - auth-local: md5
@@ -147,51 +150,23 @@ data:
 ---
 {{- end }}
 
-{{- if eq .Values.cluster "golddr" }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ .Values.app_name }}-getgoldport
+  name: {{ .Values.app_name }}-get-ts-port
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
     {{- include "chart.common-labels" . }}
 data:
-  getgoldport.sh: |-
+  # TODO Perhaps there's a better way to do these if conditions? There is the "CLUSTER" environment variable meaning I could put the logic straight into bash rather than having the condition in helm?
+  get-ts-port.sh: |-
     #!/bin/bash
-    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
+{{- if eq .Values.cluster "gold" }}
+    service_name=patroni-master-golddr
+{{- end }}
+{{- if eq .Values.cluster "golddr" }}
+    service_name=patroni-master-gold
+{{- end }}
+    tsc_port=`oc get services $service_name -o jsonpath={.spec.ports[0].port}`
     echo "$tsc_port" > /intercom/tsc_port
----
-{{- end }}
-
-{{- if eq .Values.cluster "golddr" }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-standby-patroni
-  namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
-  labels:
-    {{- include "chart.common-labels" . }}
-data:
-  config_standby_patroni.sh: |-
-    #!/bin/bash
-    tsc_port=`oc get services patroni-master-gold -o jsonpath={.spec.ports[0].port}`
-    echo '{
-        "apiVersion": "v1",
-        "kind": "ConfigMap",
-        "metadata": {
-            "annotations": {
-                "config": "{\"postgresql\":{\"use_pg_rewind\":true,\"parameters\":{\"max_connections\":100,\"max_prepared_transactions\":0,\"max_locks_per_transaction\":64}},\"standby_cluster\":{\"host\":\"patroni-master-gold\",\"port\":'$tsc_port',\"username\":\"replication\",\"password\":\"{{ .Values.replication_password }}\"}}"
-            },
-            "labels": {
-                "app.kubernetes.io/name": "patroni",
-                "cluster-name": "patroni"
-            },
-            "name": "patroni-config",
-            "namespace": "c57b11-dev"
-        }
-    }' | oc replace -f -
-
-    # This is only needed at init...so once it's run, self-distruct.
-    oc delete configmap config-standby-patroni
-{{- end }}
 ---

@@ -32,6 +32,20 @@ spec:
                     values:
                       - {{ .Values.app_name }}
               topologyKey: "kubernetes.io/hostname"
+      initContainers:
+        - name: {{ .Values.app_name }}-get-ts-port
+          # This container obtains the TS port that we use to connect to Gold in the patroni config inside the main container
+          image: image-registry.openshift-image-registry.svc:5000/openshift/cli
+          args:
+            - /bin/sh
+            - '-c'
+            - '/get-ts-port.sh'
+          volumeMounts:
+            - name: {{ .Values.app_name }}-intercom
+              mountPath: /intercom
+            - name: {{ .Values.app_name }}-get-ts-port
+              mountPath: /get-ts-port.sh
+              subPath: get-ts-port.sh
       containers:
         - env:
             #TODO: Remove POD_IP in favor of PATRONI_KUBERNETES_POD_IP
@@ -138,10 +152,12 @@ spec:
           volumeMounts:
             - name: postgresql
               mountPath: /home/postgres/pgdata
-            - name: config-{{ .Values.app_name }}-entrypoint
+            - name: {{ .Values.app_name }}-entrypoint
               mountPath: /usr/bin/entrypoint.sh
               readOnly: true
               subPath: entrypoint.sh
+            - name: {{ .Values.app_name }}-intercom
+              mountPath: /intercom
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -149,10 +165,16 @@ spec:
       serviceAccountName: {{ .Values.app_name }}
       terminationGracePeriodSeconds: 0
       volumes:
-      - name: config-{{ .Values.app_name }}-entrypoint
+      - name: {{ .Values.app_name }}-entrypoint
         configMap:
-          name: config-{{ .Values.app_name }}-entrypoint
+          name: {{ .Values.app_name }}-entrypoint
           defaultMode: 448
+      - name: {{ .Values.app_name }}-intercom
+        emptyDir: {}
+      - name: {{ .Values.app_name }}-get-ts-port
+        configMap:
+          name: {{ .Values.app_name }}-get-ts-port
+          defaultMode: 0555
 
   updateStrategy:
     type: RollingUpdate
