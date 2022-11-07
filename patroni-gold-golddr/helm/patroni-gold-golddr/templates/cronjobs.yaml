@@ -38,13 +38,13 @@ spec:
               args:
                 - /bin/sh
                 - '-c'
-                - '/getgoldport.sh'
+                - '/get-ts-port.sh'
               volumeMounts:
                 - name: {{ .Values.app_name }}-intercom
                   mountPath: /intercom
-                - name: {{ .Values.app_name }}-getgoldport
-                  mountPath: /getgoldport.sh
-                  subPath: getgoldport.sh
+                - name: {{ .Values.app_name }}-get-ts-port
+                  mountPath: /get-ts-port.sh
+                  subPath: get-ts-port.sh
             - name: {{ .Values.app_name }}-probe
               # This container will attempt a connection to the PSQL on Gold through the TS service
               image: image-registry.openshift-image-registry.svc:5000/bcgov/patroni-postgres:12.4-latest
@@ -71,9 +71,9 @@ spec:
               configMap:
                 name: {{ .Values.app_name }}-failover
                 defaultMode: 0555
-            - name: {{ .Values.app_name }}-getgoldport
+            - name: {{ .Values.app_name }}-get-ts-port
               configMap:
-                name: {{ .Values.app_name }}-getgoldport
+                name: {{ .Values.app_name }}-get-ts-port
                 defaultMode: 0555
 
           serviceAccount: {{ .Values.app_name }}

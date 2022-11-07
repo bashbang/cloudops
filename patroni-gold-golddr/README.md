@@ -1,5 +1,5 @@
 ## BCGov't Gold/GoldDR PSQL sample deployment
-This repo is exploring a solution to provide multi-cluster high availability solution for Postgresql on the BC Govt's Openshift deployment on their Gold and GoldDR (as in Gold Disaster Recover so pronounce the D and R, but I prefer to use [a-ell's](https://github.com/a-ell) pronunciation Golder) clusters.
+This repo is exploring a solution to provide multi-cluster high availability solution for Postgresql on the BC Govt's Openshift deployment on their Gold and GoldDR (as in Gold Disaster Recover so pronounce the D and R, but I prefer to use [a-ell's](https://github.com/a-ell) pronunciation Golder) clusters. We're leveraging the BC Gov't produced (patroni-postgres-container)[https://github.com/bcgov/patroni-postgres-container]
 
 This example sets up a Patroni Cluster on Gold with a Helm chart. The same helm chart can be used to deploy on to GoldDR using the appropriate values files of course. The order of deployment is important. Gold must be done first, then GoldDR.  This is because the TSC (see notes below on what a TSC is) is deployed with Gold only. The GoldDR service that's created when the TSC is needed in the helm deployment. So, in short, deploy Gold first, then GoldDR.
 
@@ -15,7 +15,7 @@ helm upgrade --install --namespace abc123-dev -f values-gold.yaml patroni .
 # Login into Openshift GoldDR Cluster
 oc login --token=sha256~{redacted} --server=https://api.golddr.devops.gov.bc.ca:6443
 # deploy GoldDR helm chart
-helm upgrade --install --namespace abc123-dev -f values-gold.yaml patroni .
+helm upgrade --install --namespace abc123-dev -f values-golddr.yaml patroni .
 ```
 
 ## Things we learned and why we did stuff.

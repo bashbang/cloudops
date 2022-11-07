@@ -2,12 +2,12 @@ app_name: patroni
 license_plate: c57b11
 environment: dev
 cluster: golddr
-replicas: 3
+replicas: 1
 image_registry: image-registry.openshift-image-registry.svc:5000
-stateful_requests_cpu: 250m
-stateful_requests_memory: 500Mi
-stateful_limit_cpu: 500m
-stateful_limit_memory: 1Gi
+stateful_requests_cpu: 150m
+stateful_requests_memory: 250Mi
+stateful_limit_cpu: 300m
+stateful_limit_memory: 500Mi
 volume_size: 1Gi
 replication_password: testing123
 loglevel: WARNING # CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET: use WARNING
