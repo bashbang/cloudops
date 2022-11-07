@@ -11,16 +11,16 @@ spec:
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      cluster-name: {{ .Values.app_name }}
       role: master
-      app.kubernetes.io/name: {{ .Values.app_name }}
+      app: {{ .Values.app_name }}
+      cluster-name: {{ .Values.app_name }}
   serviceName: {{ .Values.app_name }}
   template:
     metadata:
       labels:
-        cluster-name: {{ .Values.app_name }}
         role: master
-        app.kubernetes.io/name: {{ .Values.app_name }}
+        app: {{ .Values.app_name }}
+        cluster-name: {{ .Values.app_name }}
     spec:
       affinity:
         podAntiAffinity:

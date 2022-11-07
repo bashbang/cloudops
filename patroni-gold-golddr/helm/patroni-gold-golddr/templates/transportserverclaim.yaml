@@ -4,6 +4,7 @@
 # When te TSC is deployed onto Gold it will create a service that will communicate with GoldDR.  It will also create a Service on GoldDR to communicate to Gold.
 # NOTE: This is only to be run on Gold.
 {{- if eq .Values.cluster "gold" }}
+---
 kind: TransportServerClaim
 apiVersion: porter.devops.gov.bc.ca/v1alpha1
 metadata:
@@ -19,3 +20,4 @@ spec:
   service: {{ .Values.app_name }}-master
   servicePort: 5432
 {{- end }}
+---
