@@ -1,6 +1,25 @@
 TODO Notes:
 - the pvc is created here by helm, but there's also a template in the stateful set that wishes to create the PVC. Maybe this should be changed and only created with helm? Since we know we have redundant storage behind the PCV we don't really need to have a Volume for each patroni instance? Could we just have a single volume and share it between pod instances? The leader is the only one that can write and the reads are really only there for fallback. If the app were to use the read replicas to offload the leader I'd think that would only offload POD performance and not Storage performance, so sharing the same PVC would be acceptable. Run it by (Cailey)[https://github.com/caggles] for an opinion.
 - the replication password is hard coded in the values files. Gold and GoldDR need to have the same replication uid/pwd. If we were to use random passwords in Helm and Gold were deployed, how would GoldDR obtain that information for its config? We could OC login into Gold from GoldDR but that would then require GoldDR to have a service account with permissions to access secrets (yuck). We can't use the TransportService (TS) to tunnel into Gold since it's dedicated to the PSQL. Perhaps we could create a second TS but that seems overkill and it still grants access to Gold from GoldDR into secrets (again, yuck). The best idea we've had is to use the Vault Service (Platform Services offers a HashiCorp Vault service), however we don't have access to a Vault that could be used for testing/development.
+-
+- this is designed for illustrating replication and is NOT a replacement for backups (since a accidental or malicious drop of a table would be synchronized). However it would be nice to include a strategy for doing some basic backups. There are better solutions out there that optimize space with incremental backups leveraging the WAL files and stepped backups, but for our purposes I'd suggest we keep it simple and just produce a backup every 4 hours with pg_dumps and keep the last 7 days worth of files:
+
+```
+#!/bin/bash
+# run this cron as a job 0 */4 * * *
+set -e
+set -o pipefail
+
+# TODO: pass in the database name from env
+# TODO: pass in the database uid/pwd pair from env secrets
+
+/location/of/command/pg_dump -u "${db_user}" -p"${db_password}" "${db_name} | gzip > /backup/$(date +%F)_application.sql.gz
+
+# cleann up files > 7 days
+find /backup -type f -mtime +7 -delete > /dev/null 2>&1
+
+```
+
 
 # CLI help
 OC Command to get the leader that's listed in the configmap:
