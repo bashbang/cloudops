@@ -14,6 +14,7 @@ spec:
       cluster-name: {{ .Values.app_name }}
       role: master
       app.kubernetes.io/name: {{ .Values.app_name }}
+      app: {{ .Values.app_name }}
   serviceName: {{ .Values.app_name }}
   template:
     metadata:
@@ -21,6 +22,7 @@ spec:
         cluster-name: {{ .Values.app_name }}
         role: master
         app.kubernetes.io/name: {{ .Values.app_name }}
+        app: {{ .Values.app_name }}
     spec:
       affinity:
         podAntiAffinity:

@@ -65,7 +65,7 @@ data:
 {{- end }}
       initdb:
       - auth-host: md5
-      - auth-local: md5
+      - auth-local: trust
       - encoding: UTF8
       - locale: en_US.UTF-8
       - data-checksums

@@ -17,4 +17,3 @@ spec:
               network.openshift.io/policy-group: ingress
   policyTypes:
     - Ingress
-    
