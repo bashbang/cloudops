@@ -7,7 +7,6 @@ metadata:
   namespace: {{ .Values.license_plate }}-{{ .Values.environment }}
   labels:
     {{- include "chart.common-labels" . }}
-    cluster-name: {{ .Values.license_plate }}
     app.kubernetes.io/name: patroni
     app.kubernetes.io/component: database
 ---
