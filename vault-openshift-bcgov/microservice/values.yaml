@@ -11,6 +11,7 @@ dockerhost: image-registry.openshift-image-registry.svc:5000
 imagestreamtag: develop
 
 # Vault Sidecar
+# These settings were the bare minimum I was able to get away
 vault_requests_cpu: 5m   # default: 250m
 vault_requests_mem: 20Mi    # default: 64Mi
 vault_limits_cpu: 10m      # default: 500m

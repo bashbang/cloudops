@@ -31,7 +31,6 @@ spec:
 
       annotations:
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-inject-token: 'true'
         vault.hashicorp.com/agent-limits-cpu: {{ .Values.vault_limits_cpu }}
         vault.hashicorp.com/agent-limits-mem: {{ .Values.vault_limits_mem }}
         vault.hashicorp.com/agent-requests-cpu: {{ .Values.vault_requests_cpu }}
