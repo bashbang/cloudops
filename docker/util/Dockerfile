@@ -15,6 +15,7 @@ RUN apt-get -y install \
     git \
     htop \
     nmap \
+    iperf \
     iputils-ping \
     postgresql \
     postgresql-contrib \
