@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/${{ github.actor }}/util
+          images: ghcr.io/${{ github.actor }}/util:latest
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
