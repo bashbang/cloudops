@@ -42,7 +42,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # would prefer to scan the image BEFORE it's uploaded, but I've not been able to find a hook in the build-push-action that would allow this to happen
+      # TODO: rather than using the build-push-action break the steps up with just a docker build / scan / docker push method.
       - name: Scan image
         run: |
+          docker images
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-          grype ghcr.io/${{ github.actor }}/util
+          grype ghcr.io/${{ github.actor }}/util:release
