@@ -1,4 +1,5 @@
 # This action produces a docker artifact of my utility pod used in k8s.
+name: Build Util Container
 
 on:
   workflow_dispatch:
