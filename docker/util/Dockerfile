@@ -33,7 +33,7 @@ RUN curl https://rclone.org/install.sh | bash
 
 # This presigned URL expires after a week. Can't have it longer than that unfortunatly.
 # To get a new one: aws s3 presign s3://nttdata-canada/oc4 --expires-in 604800
-RUN RUN wget -O /usr/local/bin/oc https://nttdata-canada.s3.ca-central-1.amazonaws.com/oc4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQQWUE5HUH7PUSCXV%2F20221115%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20221115T021334Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=462937d6144d8e650a2c01f1c384c30220236f50a51159860fa55445e8970353
+RUN wget -O /usr/local/bin/oc https://nttdata-canada.s3.ca-central-1.amazonaws.com/oc4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQQWUE5HUH7PUSCXV%2F20221115%2Fca-central-1%2Fs3%2Faws4_request&X-Amz-Date=20221115T021334Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=462937d6144d8e650a2c01f1c384c30220236f50a51159860fa55445e8970353
 RUN chmod +x /usr/local/bin/oc
 
 # Set the default shell on openshift to use bash rather than sh
