@@ -2,7 +2,8 @@
 name: Build Util Container
 
 on:
-  workflow_dispatch:
+  push:
+    branches: ['release']
 
 jobs:
   build-and-push-image:
