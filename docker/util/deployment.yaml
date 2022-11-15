@@ -1,0 +1,34 @@
+# Log into openshift and select the correct namespace
+# cmd: oc apply -f depoyment.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: util
+  labels:
+    app: util
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: util
+  template:
+    metadata:
+      labels:
+        app: util
+    spec:
+      containers:
+      - name: util
+        image: ghcr.io/bashbang/util:release
+        command: ["tail", "-f", "/dev/null"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "50m"
+            memory: "100Mi"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
