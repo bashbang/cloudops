@@ -86,7 +86,7 @@ spec:
         # This is an important one to consider in your design!!
         # If you only need the secrets at init time, set this to False
         # It's set true here to illustrate the inclusion of a vault sidecar
-        # Generally flase is the recommended value/method.
+        # Generally false is the recommended value/method.
         # NOTE: Job and CronJob types have issues with sidecars. (https://medium.com/finnovate-io/how-to-prevent-kubernetes-cron-jobs-with-sidecar-containers-from-getting-stuck-912c0f1497a3)
         # For this reason, if using one of these types set this to false
         vault.hashicorp.com/agent-pre-populate-only: 'true'
@@ -94,7 +94,7 @@ spec:
         # If you have a container that is designed to periodically read the secrets from the secrets file so that
         # it can be dynamically updated with new secrets from the vault then you'll need the vault sidecar and may
         # wish to set the size values of the sidcar here. You'll then want to set the above agent-inject-token to true.
-        # However, of you just need the secrets at main container init (eg in the entrypoint) then this is done
+        # However, if you just need the secrets at main container init (eg in the entrypoint) then this is done
         # in an initcontainer which of course terminates when the main container starts so you probably won't
         # need to force a small container in which case this block is not required.
         vault.hashicorp.com/agent-limits-cpu: {{ .Values.vault_limits_cpu }}
