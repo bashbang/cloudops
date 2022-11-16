@@ -112,7 +112,6 @@ spec:
         # - The name of the secret is any unique string after vault.hashicorp.com/agent-inject-secret-<name>
         # - The value is the path in Vault where the secret is located.
         vault.hashicorp.com/agent-inject-secret-microservices-secret-dev: abc123-nonprod/microservices-secret-dev
-        vault.hashicorp.com/agent-inject-secret-microservices-secret-dev: abc123-nonprod/microservices-secret-dev
 
         # - The template Vault Agent should use for rendering a secret:
         vault.hashicorp.com/agent-inject-template-microservices-secret-dev: |
