@@ -84,17 +84,17 @@ spec:
         vault.hashicorp.com/agent-inject-token: 'false'        # Default is false
 
         # This is an important one to consider in your design!!
-        # If you only need the secrets at init time, set this to False
-        # It's set true here to illustrate the inclusion of a vault sidecar
-        # Generally flase is the recommended value/method.
+        # If you only need the secrets at init time, set this to true
+        # It's set false here to illustrate the inclusion of a vault sidecar
+        # Generally true is the recommended value/method.
         # NOTE: Job and CronJob types have issues with sidecars. (https://medium.com/finnovate-io/how-to-prevent-kubernetes-cron-jobs-with-sidecar-containers-from-getting-stuck-912c0f1497a3)
-        # For this reason, if using one of these types set this to false
-        vault.hashicorp.com/agent-pre-populate-only: 'true'
+        # For this reason, if using one of these types set this to true
+        vault.hashicorp.com/agent-pre-populate-only: 'false'      # false is the default, but I'd recommended true
 
         # If you have a container that is designed to periodically read the secrets from the secrets file so that
         # it can be dynamically updated with new secrets from the vault then you'll need the vault sidecar and may
         # wish to set the size values of the sidcar here. You'll then want to set the above agent-inject-token to true.
-        # However, of you just need the secrets at main container init (eg in the entrypoint) then this is done
+        # However, if you just need the secrets at main container init (eg in the entrypoint) then this is done
         # in an initcontainer which of course terminates when the main container starts so you probably won't
         # need to force a small container in which case this block is not required.
         vault.hashicorp.com/agent-limits-cpu: {{ .Values.vault_limits_cpu }}
@@ -108,8 +108,12 @@ spec:
         vault.hashicorp.com/namespace: platform-services
         vault.hashicorp.com/role: abc123-nonprod  # licenseplate-nonprod or licenseplate-prod are your options
 
-        # We don't really know if this key needs to match the secret or not...please update if you know.
+        # Configure how to retrieve and populate the secrets from Vault:
+        # - The name of the secret is any unique string after vault.hashicorp.com/agent-inject-secret-<name>
+        # - The value is the path in Vault where the secret is located.
         vault.hashicorp.com/agent-inject-secret-microservices-secret-dev: abc123-nonprod/microservices-secret-dev
+
+        # - The template Vault Agent should use for rendering a secret:
         vault.hashicorp.com/agent-inject-template-microservices-secret-dev: |
           {{- with secret "abc123-nonprod/microservices-secret-dev" }}
           export dev_database_host="{{ .Data.data.dev_database_host }}"
@@ -132,5 +136,13 @@ spec:
 Note the additional line under spec that I added. This is the service account that is needed to connect to the Vault. This account has been created already for you in Openshift so on the surface it's straight forward. You may notice another one that's used in the demo: `serviceAccount: LICENSE-vault`. According to `oc explain pod.spec.serviceAccount` serviceAccount has been deprecated.
 
 There's a issue to be aware of with using this service account. In my case I use Imagestreams from the {licenseplate}-tools namespace which means I need to have a service account that's allowed to read from the image stream between namespaces (eg: between abc123-dev and abc123-tools). Originally I'd set the "deployer" account with the permissions to do this by adding the vault secrets to the deployer SA, but for some reason it didn't work. What did work was using the {licenseplate}-vault service account (abc123-vault). It already had permissions to read from the tools namespace. Perhaps not optimal, but it worked.
+
+This example in the vault.hashicorp.com/agent-inject-tempalte-<key> it produces a sh script (note the "export" commands). This design makes it easy to then push the secrets from the file into the working container environment with the `source` command through the entrypoint. It would look something like this:
+```yaml
+      containers:
+        - name: app
+          args:
+          ['sh', '-c', 'source /vault/secrets/microservices-secret-dev && /entrypoint.sh']
+```
 
 The templates in this folder presents a helm version of a similar manifest. I've also included a sample json file that vault would use to storing its secrets.
