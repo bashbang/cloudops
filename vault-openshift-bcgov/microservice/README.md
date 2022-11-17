@@ -84,12 +84,12 @@ spec:
         vault.hashicorp.com/agent-inject-token: 'false'        # Default is false
 
         # This is an important one to consider in your design!!
-        # If you only need the secrets at init time, set this to False
-        # It's set true here to illustrate the inclusion of a vault sidecar
-        # Generally false is the recommended value/method.
+        # If you only need the secrets at init time, set this to true
+        # It's set false here to illustrate the inclusion of a vault sidecar
+        # Generally true is the recommended value/method.
         # NOTE: Job and CronJob types have issues with sidecars. (https://medium.com/finnovate-io/how-to-prevent-kubernetes-cron-jobs-with-sidecar-containers-from-getting-stuck-912c0f1497a3)
-        # For this reason, if using one of these types set this to false
-        vault.hashicorp.com/agent-pre-populate-only: 'true'
+        # For this reason, if using one of these types set this to true
+        vault.hashicorp.com/agent-pre-populate-only: 'false'      # false is the default, but I'd recommended true
 
         # If you have a container that is designed to periodically read the secrets from the secrets file so that
         # it can be dynamically updated with new secrets from the vault then you'll need the vault sidecar and may
