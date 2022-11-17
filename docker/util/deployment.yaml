@@ -1,5 +1,5 @@
 # Log into openshift and select the correct namespace
-# cmd: oc apply -f depoyment.yaml
+# cmd: oc apply -f ./deployment.yaml
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -19,6 +19,9 @@ spec:
       containers:
       - name: util
         image: ghcr.io/bashbang/util:release
+        volumeMounts:
+          - name: kube
+            mountPath: /.kube
         command: ["tail", "-f", "/dev/null"]
         imagePullPolicy: Always
         resources:
@@ -28,6 +31,9 @@ spec:
           requests:
             cpu: "50m"
             memory: "100Mi"
+      volumes:
+      - name: kube
+        emptyDir: {}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
