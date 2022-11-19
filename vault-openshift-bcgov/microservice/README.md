@@ -83,6 +83,12 @@ spec:
         # To have this token in the vault folder and not have a need for it is just a security exposure.
         vault.hashicorp.com/agent-inject-token: 'false'        # Default is false
 
+        # currently the BC Gov't annotation defaults to 1.8.3 which is throwing a bunch of errors in our security scans
+        # so this will explicitly load in a version.  1.12 as of right now is the lastest version
+        # we are not includeing the security patched version 1.12.1 as the 1.12 maps to the latest security patch.
+        # I consider this low risk high reward choice.
+        vault.hashicorp.com/agent-image: 'hashicorp/vault:1.12'
+
         # This is an important one to consider in your design!!
         # If you only need the secrets at init time, set this to true
         # It's set false here to illustrate the inclusion of a vault sidecar
