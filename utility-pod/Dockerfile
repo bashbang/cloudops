@@ -17,6 +17,7 @@ RUN apt-get -y install \
     nmap \
     iperf \
     iputils-ping \
+    lynx \
     postgresql \
     postgresql-contrib \
     postgresql-client \
