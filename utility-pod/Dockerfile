@@ -8,6 +8,7 @@ RUN apt-get -y update && \
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y install awscli
 
+
 RUN apt-get -y install \
     dnsutils \
     build-essential \
