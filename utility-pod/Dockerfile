@@ -1,4 +1,4 @@
-FROM public.ecr.aws/ubuntu/ubuntu:18.04_stable
+FROM public.ecr.aws/ubuntu/ubuntu:22.04_stable
 
 SHELL ["/bin/bash", "-c"]
 

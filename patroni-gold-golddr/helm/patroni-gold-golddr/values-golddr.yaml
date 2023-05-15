@@ -8,6 +8,10 @@ stateful_requests_cpu: 50m
 stateful_requests_memory: 50Mi
 stateful_limit_cpu: 200m
 stateful_limit_memory: 250Mi
+stateful_initrequests_cpu: 50m
+stateful_initrequests_memory: 50Mi
+stateful_initlimit_cpu: 200m
+stateful_initlimit_memory: 250Mi
 volume_size: 200Mi
 replication_password: testing123
 root_password: testing456

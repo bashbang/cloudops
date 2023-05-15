@@ -42,6 +42,13 @@ spec:
             - /bin/sh
             - '-c'
             - '/get-ts-port.sh'
+          resources:
+            requests:
+              cpu: {{ .Values.stateful_initrequests_cpu }}
+              memory: {{ .Values.stateful_initrequests_memory }}
+            limits:
+              cpu: {{ .Values.stateful_initlimit_cpu }}
+              memory: {{ .Values.stateful_initlimit_memory }}
           volumeMounts:
             - name: {{ .Values.app_name }}-intercom
               mountPath: /intercom
