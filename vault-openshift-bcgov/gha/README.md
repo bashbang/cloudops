@@ -6,3 +6,4 @@ High level how it works is one of the technical contacts with Vault access will 
 # Known issues:
 - it's not optimal to have PAT as the token for connecting to the Vault. A service account (SA) would be better but at this time a SA token is not available.
 - the private key is being stored on the GHA container during execution. This is left behind after the container is terminated. We're relying on Github to take responsibility for both ensuring the data isn't leaking and the container is cleaned up after termination. In both cases, when we echo out the output of the secret as well as cat out the file that the secret was stored, the secret is masked in the output during workflow execution.
+- at the time of this writing it's unclear how long this PAT will live. The Vault default is 32 days, but this may have been overridden by the Platform Services team.
