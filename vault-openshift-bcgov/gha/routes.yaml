@@ -1,0 +1,30 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    app: {{ .Values.appName }}
+    name: {{ .Values.appName }}
+  annotations:
+    # default is leastconn which tends to route all traffic to the same pods.
+    haproxy.router.openshift.io/balance: "roundrobin"
+    # disable the cookies for load testing as the load test is coming from a single source host.
+    haproxy.router.openshift.io/disable_cookies: "true"
+spec:
+  host: www.mydomain.gov.bc.ca
+  port:
+    targetPort: 8080-tcp
+  tls:
+    key: |-
+{{ .Files.Get "certs/private.key" | indent 6 }}
+    certificate: |-
+{{ .Files.Get "certs/certificate.crt" | indent 6 }}
+    caCertificate: |-
+{{ .Files.Get "certs/cacertificate.crt" | indent 6 }}
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: {{ .Values.appName }}
+    weight: 100
+  wildcardPolicy: None

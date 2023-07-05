@@ -1,0 +1,45 @@
+name: Helm Upgrade Route
+
+on:
+  workflow_dispatch:
+
+jobs:
+  helm_upgrade:
+    runs-on: ubuntu-latest
+    name: Helm Upgrade
+
+    steps:
+      - name: Obtain code from git.
+        uses: actions/checkout@v3
+
+      - name: Openshift Cluster Login
+        uses: redhat-actions/oc-login@v1.2
+        with:
+          # to get this info do a "oc whoami --show-server" -
+          openshift_server_url: https://api.gold.devops.gov.bc.ca:6443
+          # get this from the SA secret, it's one of the 4 generated secrets. I'm using the pipeline SA for this workflow.
+          openshift_token: ${{ secrets.GOLD_DEV_SA_PIPELINE_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: abc123-dev
+
+      - name: Import secrets
+        id: vault
+        uses: hashicorp/vault-action@v2
+        with:
+          url: https://vault.developer.gov.bc.ca
+          # IMPORTANT - This token comes from vault once you are logged in via the GUI - it's a PAT
+          token: ${{ secrets.VAULT_PAT_TOKEN }}
+          exportEnv: "false"
+          namespace: platform-services
+          secrets: |
+            abc123-nonprod/data/ssl-certs private | SSL_PRIVATE;
+            abc123-nonprod/data/ssl-certs certificate | SSL_CERTIFICATE;
+            abc123-nonprod/data/ssl-certs cacertificate | SSL_CACERTIFICATE;
+
+      - name: Apply Charts to OC4
+        # this does not do an "install" so assumes the helm chart already exists therefor won't work on init of a helm chart
+        run: |
+          echo "${{ steps.vault.outputs.SSL_PRIVATE }}" > certs/private.key
+          echo "${{ steps.vault.outputs.SSL_CERTIFICATE }}" > certs/certificate.crt
+          echo "${{ steps.vault.outputs.SSL_CACERTIFICATE }}" > certs/cacertificate.crt
+          helm upgrade --namespace abc123-dev -f values.yaml my-app .

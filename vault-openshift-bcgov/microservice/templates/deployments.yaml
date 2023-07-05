@@ -42,13 +42,14 @@ spec:
         vault.hashicorp.com/agent-inject-secret-my-microservices-stage: {{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.stage }}
         vault.hashicorp.com/agent-inject-template-microservices-stage: |
           {{`{{- with secret `}}"{{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}-{{ .Values.stage }}"{{` }}
-          export stage="{{ .Data.data.stage }}"
+          <configuration>
+              <jdbcUrl>jdbc:oracle:thin:{{ .Data.data.ORACLE_USER }}/{{ .Data.data.PASSWORD }}@{{ .Data.data.HOST }}:1521:{SID}</jdbcUrl>
           {{- end `}} }}
 
         vault.hashicorp.com/agent-inject-secret-microservices-environment: {{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}
         vault.hashicorp.com/agent-inject-template-microservices-environment: |
           {{`{{- with secret `}}"{{ .Values.licenseplate }}-{{ .Values.vault_engine }}/my-microservices-{{ .Values.environment }}"{{` }}
-          export jre_opts="{{ .Data.data.jre_opts }}"
+          export ORACLE_USER="{{ .Data.data.ORACLE_USER }}"
           export dev_database="{{ .Data.data.dev_database }}"
           export dev_host="{{ .Data.data.dev_host }}"
           export openshift_host="{{ .Data.data.openshift_host }}"
