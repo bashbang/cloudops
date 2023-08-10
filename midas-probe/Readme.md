@@ -1,4 +1,4 @@
-# Midas Probe Openshift Prob for Gold/GoldDR
+# Midas Probe - Openshift GSLB Keepalive Service for Gold/GoldDR Failover
 
 This service is used to monitor several services running on Openshift (OCP). It has two primary purposes:
 1. It will display the results of the services (running or not) based on the availability of pods for that service. In essence it depends on the OCP deployment readyness probes.
