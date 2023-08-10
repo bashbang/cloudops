@@ -19,8 +19,9 @@ The config of the GSLB in the case of Midas-Touch is:
 
 - URL or Common Name: www-dev.domain.com
 - Back-end IP(s) and port:
+
 | Cluster | IP:PORT          |
-| ---     | ---              |
+| :---:     | :---:              |
 | GOLD    | 142.34.229.4:443 |
 | GOLDDR  | 142.34.64.4:443  |
 
