@@ -33,7 +33,7 @@ jobs:
         with:
           url: https://vault.developer.gov.bc.ca
           # IMPORTANT - This token comes from vault once you are logged in via the GUI
-          # Currently associated with adams account
+          # This token expires after 32 days.
           token: ${{ secrets.PAT_VAULT_TOKEN }}
           exportEnv: "false"
           namespace: platform-services
