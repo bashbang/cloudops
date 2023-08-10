@@ -1,4 +1,4 @@
-# Midas Touch Openshift Prob for Gold/GoldDR
+# Midas Probe Openshift Prob for Gold/GoldDR
 
 This service is used to monitor several services running on Openshift (OCP). It has two primary purposes:
 1. It will display the results of the services (running or not) based on the availability of pods for that service. In essence it depends on the OCP deployment readyness probes.
@@ -15,7 +15,7 @@ There are two pipelines:
 2. Helm Upgrade Midas Probe: This does a helm upgrade (helm install needs to have previously been done manually). There's an integration into the Vault that Platform services runs. The private key, public key and certs are all stored in the vault. When your Personal Access Token (PAT) obtained from the user config within Vault is stored as a secret in Github Actions (GHA) this workflow will call to Vault, obtain the secrets and store them as files on the container, then helm will consume those files for deploying the route needed by the GSLB to communicate with Midas.  It should be noted that this PAT expires every 32 days so needs to be updated regularly.
 
 ## GSLB Setup Notes:
-The config of the GSLB in the case of Midas-Touch is:
+The config of the GSLB in the case of Midas-Probe is:
 
 - URL or Common Name: www-dev.domain.com
 - Back-end IP(s) and port:
