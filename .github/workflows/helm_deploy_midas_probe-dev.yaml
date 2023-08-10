@@ -1,0 +1,53 @@
+name: Helm Upgrade Midas Probe - Dev
+
+# This workflow runs the helm chart for Midas Probe on dev
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/helm_deploy_midas_probe-dev.yaml"
+      - "midas-probe/openshift/helm/midas-probe/values-dev-rt.yaml"
+      - "midas-probe/openshift/helm/midas-probe/templates/**"
+  workflow_dispatch:
+
+jobs:
+  helm_upgrade_midas_probe_dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtain code from GitHub
+        uses: actions/checkout@v3
+
+      - name: Openshift Cluster Login
+        uses: redhat-actions/oc-login@v1.1
+        with:
+          # to get this info do a "oc whoami --show-server" -
+          openshift_server_url: https://api.gold.devops.gov.bc.ca:6443
+          openshift_token: ${{ secrets.GOLD_DEV_SA_PIPELINE_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: abc123-dev
+
+      - name: Import secrets from Vault
+        id: vault
+        uses: hashicorp/vault-action@v2
+        with:
+          url: https://vault.developer.gov.bc.ca
+          # IMPORTANT - This token comes from vault once you are logged in via the GUI
+          # Currently associated with adams account
+          token: ${{ secrets.PAT_VAULT_TOKEN }}
+          exportEnv: "false"
+          namespace: platform-services
+          secrets: |
+            abc123-nonprod/data/cmf-ssl-certs private | SSL_PRIVATE;
+            abc123-nonprod/data/cmf-ssl-certs certificate | SSL_CERTIFICATE;
+            abc123-nonprod/data/cmf-ssl-certs cacertificate | SSL_CACERTIFICATE;
+
+      - name: Apply Helm Templates to OC4
+        working-directory: midas-probe/openshift/helm/midas-probe
+        # Note that this does not do an "install" so assumes that the helm chart already exists hence this workflow won't work on init for a helm chart into the namespace
+        run: |
+          echo "${{ steps.vault.outputs.SSL_PRIVATE }}" > certs/private.key
+          echo "${{ steps.vault.outputs.SSL_CERTIFICATE }}" > certs/certificate.crt
+          echo "${{ steps.vault.outputs.SSL_CACERTIFICATE }}" > certs/cacertificate.crt
+          oc get projects
+          helm upgrade --namespace abc123-dev -f values-dev-rt.yaml midas-probe .
