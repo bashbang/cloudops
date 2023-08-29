@@ -31,12 +31,12 @@ RUN apt-get -y install \
 
 # A writeable folder for OCP deployments that are non-root based runtimes
 RUN mkdir /test && \
-    chgrp 0 /test
-    chmod 775 /test && \
+    chgrp 0 /test && \
+    chmod 775 /test
 
 RUN mkdir /test2 && \
-    chgrp 0 /test2
-    chmod g=u /test2 && \
+    chgrp 0 /test2 && \
+    chmod g=u /test2
 
 RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
