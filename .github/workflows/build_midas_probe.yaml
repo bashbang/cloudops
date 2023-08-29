@@ -2,7 +2,7 @@ name: Build Midas Probe
 
 on:
   push:
-    branches: [main]
+    branches: [pickabranch]
     paths-ignore: [midas-probe/openshift]
   workflow_dispatch:
 
