@@ -9,6 +9,11 @@ on:
       - 'main'
 
 jobs:
+
+  myjob:
+    name: My Job
+    runs-on: ubuntu-latest
+
   steps:
     - name: Checkout code
       id: code-checkout
