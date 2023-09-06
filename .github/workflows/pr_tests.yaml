@@ -1,0 +1,24 @@
+name: PR Tests
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+  pull_request:
+    branches-ignore:
+      - 'main'
+
+jobs:
+  steps:
+    - uses: actions/checkout@v1
+
+    - id: find-pr
+      uses: jwalton/gh-find-current-pr@v1
+      with:
+        state: open
+
+    - id: job1
+      run: echo "Your PR is ${PR}"
+      if: success() && steps.find-pr.outputs.number
+      env:
+        PR: ${{ steps.find-pr.outputs.pr }}
