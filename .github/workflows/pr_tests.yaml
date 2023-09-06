@@ -10,14 +10,18 @@ on:
 
 jobs:
   steps:
-    - uses: actions/checkout@v1
+    - name: Checkout code
+      id: code-checkout
+      uses: actions/checkout@v3
 
-    - id: find-pr
+    - name: find-pr
+      id: find-pr
       uses: jwalton/gh-find-current-pr@v1
       with:
         state: open
 
-    - id: job1
+    - name: job1
+      id: job1
       run: echo "Your PR is ${PR}"
       if: success() && steps.find-pr.outputs.number
       env:
