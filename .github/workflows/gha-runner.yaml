@@ -5,9 +5,8 @@ on:
 
 jobs:
   RunBuild:
-    runs-on: ububtu-latest
+    runs-on: self-hosted
     name: GHA Runner
     steps:
       - name: Obtain code from git
         uses: actions/checkout@v2
-      
