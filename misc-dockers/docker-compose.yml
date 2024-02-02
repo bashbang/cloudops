@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: Dockerfile-python
         ports:
-          - "5000:5500"
+          - "5500:5000"
         networks:
             - mynetwork
     python64:
