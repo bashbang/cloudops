@@ -1,0 +1,7 @@
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/HelloWorld
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/appsettings.Development.json
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/appsettings.json
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/HelloWorld.dll
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/HelloWorld.deps.json
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/HelloWorld.runtimeconfig.json
+/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/out/HelloWorld.pdb

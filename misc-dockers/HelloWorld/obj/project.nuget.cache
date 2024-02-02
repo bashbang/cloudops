@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "iPJU26A48Y3/CLmVxzw8vLJxOvXX6uDGJVT5oDXH+GJVJzLFPv1KpiyzqavNl07tEpbrCwCX5R8i2xOwQBYe/Q==",
+  "success": true,
+  "projectFilePath": "/Users/chrismullin/work/nttdata/cloudops/misc-dockers/HelloWorld/HelloWorld.csproj",
+  "expectedPackageFiles": [
+    "/Users/chrismullin/.nuget/packages/microsoft.netcore.app.host.linux-musl-x64/8.0.1/microsoft.netcore.app.host.linux-musl-x64.8.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
