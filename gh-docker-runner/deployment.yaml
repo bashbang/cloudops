@@ -1,0 +1,46 @@
+# Log into openshift and select the correct namespace
+# cmd: oc apply -f ./deployment.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gha-runner
+  labels:
+    app: gha-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gha-runner
+  template:
+    metadata:
+      labels:
+        app: gha-runner
+    spec:
+      containers:
+      - name: gha-runner
+        image: image-registry.openshift-image-registry.svc:5000/c57b11-tools/gha-runner:latest
+        volumeMounts:
+          - name: build
+            mountPath: /build
+        command: ["./start.sh"]
+        workingDirectory: /actions-runner
+        env:
+          - name: REPO
+            value: bashbang/cloudops
+          - name: TOKEN
+            value: AE3WOIEBUZZRHDHZGZ6MIYDFEB6XS
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "50m"
+            memory: "100Mi"
+      volumes:
+      - name: build
+        emptyDir: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/python
 
 # This script is the heart of the midas dashboard.
 # it runs a webserver (flask) and returns a dashoboard or JSON output
