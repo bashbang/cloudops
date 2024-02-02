@@ -37,7 +37,7 @@ spec:
           - name: servicename
             value: {{ .Values.appName }}
           - name: cluster
-            values: {{ .Values.cluster }}
+            value: {{ .Values.cluster }}
           - name: namespace
             valueFrom:
               fieldRef:
