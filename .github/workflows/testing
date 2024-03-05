@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
   strategy:
-    stage: [rt, qa]
-    environ: ["TESTING","PRODUCTION"]
+    matrix:
+      stage: [rt, qa]
+      environ: ["TESTING","PRODUCTION"]
 
   steps:
     - name: Test Run
