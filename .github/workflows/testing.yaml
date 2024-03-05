@@ -17,4 +17,4 @@ jobs:
         run: |
           echo STAGE=${{ matrix.stage }}
           echo ENVIRO=${{ matrix.enviro }}
-          echo secret=${{ env[format('secrets.MY_{0}_SECRET', matrix.enviro)] }}
+          echo secret= '${{ format('secrets.MY_{0}_SECRET', matrix.enviro)] }}'
