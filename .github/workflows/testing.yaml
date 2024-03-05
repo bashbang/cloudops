@@ -10,8 +10,8 @@ jobs:
     strategy:
       matrix:
         stage: [rt, qa]
-        environ: ["TESTING","PRODUCTION"]
-    
+        enviro: ["TESTING","PRODUCTION"]
+
     steps:
       - name: TestRun
         run: |
