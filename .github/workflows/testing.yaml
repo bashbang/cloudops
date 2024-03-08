@@ -4,9 +4,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  testing:
+  gold:
     runs-on: ubuntu-latest
-    environment: testing
+    environment: gold
+
+    steps:
+      - name: TestRun
+        run: |
+          echo STAGE=${{ secrets.stage }}
+          echo ENVIRO=${{ secrets.enviro }}
+
+  golddr:
+    runs-on: ubuntu-latest
+    environment: golddr
 
     steps:
       - name: TestRun
