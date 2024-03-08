@@ -6,15 +6,10 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        stage: [rt, qa]
-        enviro: ["TESTING","PRODUCTION"]
+    environment: testing
 
     steps:
       - name: TestRun
         run: |
-          echo STAGE=${{ matrix.stage }}
-          echo ENVIRO=${{ matrix.enviro }}
-          echo secret= '${{ format('secrets.MY_{0}_SECRET', matrix.enviro) }}'
+          echo STAGE=${{ secrets.stage }}
+          echo ENVIRO=${{ secrets.enviro }}
