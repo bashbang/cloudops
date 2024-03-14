@@ -18,7 +18,7 @@ jobs:
         run: |
           ls -lstra
 
-      - name: CD
+      - name: CD - Wrong
         run: |
           cd "./tekton"
 
