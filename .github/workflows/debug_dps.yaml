@@ -1,0 +1,33 @@
+name: Debigging Workflow
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  get-app-version:
+    name: Get the app-version from the POM file
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "."
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: LS Pre
+        run: |
+          ls -lstra
+
+      - name: CD
+        run: |
+          cd "./tekton"
+
+      - name: LS
+        run: |
+          pwd
+          ls -lstra
+
+      - name: PWD
+        working-directory: "./tekton"
+        run: |
+          echo pwd
