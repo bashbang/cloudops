@@ -22,12 +22,17 @@ jobs:
         run: |
           cd "./tekton"
 
-      - name: LS
+      - name: LS - Wrong
         run: |
           pwd
           ls -lstra
 
-      - name: PWD
+      - name: PWD - Correct
         working-directory: "./tekton"
         run: |
           pwd
+
+      - name: LS - Correct
+        run: |
+          cd tekton
+          ls -lstra
