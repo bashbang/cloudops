@@ -1,4 +1,4 @@
-name: Debigging Workflow
+name: Debugging Workflow
 
 on:
   workflow_dispatch: {}
@@ -30,4 +30,4 @@ jobs:
       - name: PWD
         working-directory: "./tekton"
         run: |
-          echo pwd
+          pwd
