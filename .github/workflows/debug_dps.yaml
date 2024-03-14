@@ -4,8 +4,8 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  get-app-version:
-    name: Get the app-version from the POM file
+  TESTING:
+    name: TESTING Folder Changes
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,7 +32,7 @@ jobs:
         run: |
           pwd
 
-      - name: LS - Correct
+      - name: LS - Correct (but not as good as working-directory)
         run: |
           cd tekton
           ls -lstra
