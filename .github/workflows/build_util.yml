@@ -4,6 +4,7 @@ name: Build Util Container
 on:
   push:
     branches: ['release']
+  workflow_dispatch:
 
 jobs:
   trivy:
