@@ -1,0 +1,36 @@
+# Local Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Terraform plan files
+*.tfplan
+
+# Crash logs
+crash.log
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# Terraform variable environment files
+.terraform.tfvars
+terraform.tfvars
+
+# Sensitive provider configuration files
+provider.tfvars
+
+# Generated files by IDEs or OS
+*.DS_Store
+*.log
+*.bak
+*.swp
