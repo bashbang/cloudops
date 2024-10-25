@@ -9,20 +9,20 @@ locals {
     {
       label    = "kube_namespace_name"
       operator = "equals"
-      values   = ["d22e7c-dev"]
+      values   = ["abc123-dev"]
     },
     {
       label    = "kube_deployment_name"
       operator = "equals"
-      values   = ["eibc-wordpress"]
+      values   = ["project-wordpress"]
     }
   ]
 
   # Define environments
   environments = {
-    dev  = "d22e7c-dev"
-    test = "d22e7c-test"
-    prod = "d22e7c-prod"
+    dev  = "abc123-dev"
+    test = "abc123-test"
+    prod = "abc123-prod"
   }
 
   # Define pod metrics
