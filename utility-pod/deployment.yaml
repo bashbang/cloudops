@@ -22,6 +22,10 @@ spec:
         volumeMounts:
           - name: kube
             mountPath: /.kube
+          - name: test3
+            mountPath: /test3
+          - name: test4
+            mountPath: /test4
         command: ["tail", "-f", "/dev/null"]
         imagePullPolicy: Always
         resources:
@@ -33,6 +37,10 @@ spec:
             memory: "100Mi"
       volumes:
       - name: kube
+        emptyDir: {}
+      - name: test3
+        emptyDir: {}
+      - name: test4
         emptyDir: {}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
