@@ -1,0 +1,12 @@
+name: GHA Runner Test
+
+on:
+  workflow_dispatch
+
+jobs:
+  RunBuild:
+    runs-on: self-hosted
+    name: GHA Runner
+    steps:
+      - name: Obtain code from git
+        uses: actions/checkout@v2

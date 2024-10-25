@@ -1,0 +1,12 @@
+FROM pytorch/pytorch:latest
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update
+
+RUN mkdir /code
+WORKDIR /code
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY helloworld.py .
+
+ENTRYPOINT [ "./helloworld.py" ]

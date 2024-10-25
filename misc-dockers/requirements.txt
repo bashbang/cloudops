@@ -1,0 +1,4 @@
+# webserver
+flask
+# compiler for validating build on M2 - not used in main.py
+murmurhash

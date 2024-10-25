@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+    python:
+        container_name: python
+        image: python-amd64:latest
+        build:
+            context: .
+            dockerfile: Dockerfile-python
+        ports:
+          - "5500:5000"
+        networks:
+            - mynetwork
+    python64:
+        container_name: python64
+        image: python64:latest
+        build:
+            context: .
+            dockerfile: Dockerfile-python
+        ports:
+          - "5000:5000"
+        networks:
+            - mynetwork
+    dotnet:
+        container_name: dotnet-amd64
+        image: dotnet-amd64:latest
+        build:
+            context: .
+            dockerfile: Dockerfile-dotnet64
+        ports:
+          - "8080:8080"
+        networks:
+            - mynetwork
+    multiarch:
+        container_name: multiarch
+        image: multiarch:latest
+        build:
+            context: .
+            dockerfile: Dockerfile-multiarch
+        networks:
+            - mynetwork
+networks:
+    mynetwork:
+        driver: bridge

@@ -1,0 +1,38 @@
+name: Debugging Workflow
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  TESTING:
+    name: TESTING Folder Changes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "."
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: LS Pre
+        run: |
+          ls -lstra
+
+      - name: CD - Wrong
+        run: |
+          cd "./tekton"
+
+      - name: LS - Wrong
+        run: |
+          pwd
+          ls -lstra
+
+      - name: PWD - Correct
+        working-directory: "./tekton"
+        run: |
+          pwd
+
+      - name: LS - Correct (but not as good as working-directory)
+        run: |
+          cd tekton
+          ls -lstra

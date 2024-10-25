@@ -3,30 +3,32 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: util
+  name: gha-runner
   labels:
-    app: util
+    app: gha-runner
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: util
+      app: gha-runner
   template:
     metadata:
       labels:
-        app: util
+        app: gha-runner
     spec:
       containers:
-      - name: util
-        image: ghcr.io/bashbang/util:release
+      - name: gha-runner
+        image: image-registry.openshift-image-registry.svc:5000/c57b11-tools/gha-runner:latest
         volumeMounts:
-          - name: kube
-            mountPath: /.kube
-          - name: test3
-            mountPath: /test3
-          - name: test4
-            mountPath: /test4
-        command: ["tail", "-f", "/dev/null"]
+          - name: build
+            mountPath: /build
+        command: ["./start.sh"]
+        workingDirectory: /actions-runner
+        env:
+          - name: REPO
+            value: bashbang/cloudops
+          - name: TOKEN
+            value: AE3WOIEBUZZRHDHZGZ6MIYDFEB6XS
         imagePullPolicy: Always
         resources:
           limits:
@@ -36,11 +38,7 @@ spec:
             cpu: "50m"
             memory: "100Mi"
       volumes:
-      - name: kube
-        emptyDir: {}
-      - name: test3
-        emptyDir: {}
-      - name: test4
+      - name: build
         emptyDir: {}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
