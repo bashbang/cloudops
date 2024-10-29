@@ -1,0 +1,2 @@
+# This token is a PAT in my user profile. In my case was found here: https://app.sysdigcloud.com/#/settings/user under "Sysdig Monitor API"
+sysdig_api_token = "{THIS_IS_THE_GENERATED_TOKEN_FROM_SYSDIG}"

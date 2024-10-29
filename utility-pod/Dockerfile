@@ -14,6 +14,7 @@ RUN apt-get -y install \
     htop \
     iperf \
     iputils-ping \
+    jq \
     lynx \
     mysql-client \
     nmap \
@@ -27,6 +28,7 @@ RUN apt-get -y install \
     unzip \
     vim \
     wget \
+    yq \
     && \
     rm -rf /var/lib/apt/lists/*
 
