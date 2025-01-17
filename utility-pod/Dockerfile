@@ -53,7 +53,7 @@ RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
 
 # install Openshift CLI tool oc
-RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.17/openshift-client-linux-4.17.1.tar.gz | tar -zxvf - -C /usr/local/bin/
+RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin/
 
 # install Github CLI tool gh
 RUN curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_amd64.tar.gz | tar -zxvf - gh_2.60.0_linux_amd64/bin/gh --strip-components=1
