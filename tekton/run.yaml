@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: git-clone-checking-out-a-branch-
+spec:
+#  podTemplate:
+#    affinity:
+#      podAntiAffinity:
+#        requiredDuringSchedulingIgnoredDuringExecution:
+#          - labelSelector:
+#              matchExpressions:
+#              - key: "tekton.dev/pipelineRun"
+#                operator: In
+#                values:
+#                - git-clone-checking-out-a-branch
+#            topologyKey: kubernetes.io/hostname
+  pipelineRef:
+    name: p-git-collin-test
+  workspaces:
+    - name: shared-data
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: ssh-creds
+      secret:
+        secretName: tkn-ssh-credentials
+  params:
+  - name: repo-url
+    value: git@github.com:gregnrobinson/envoytun.git
+  - name: branch-name
+    value: main
