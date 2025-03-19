@@ -1,15 +1,14 @@
 #!/opt/conda/bin/python
 
 import torch
+import numpy
 
 def main():
     # Define a tensor with "Hello, World!" string
-    hello_tensor = torch.tensor([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33])
+    helloworld_array = numpy.array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33])
+    tensor_array = torch.from_numpy(helloworld_array)
 
-    # Convert tensor to string
-    hello_string = ''.join([chr(char) for char in hello_tensor])
-
-    print(hello_string)
+    print(tensor_array)
 
 if __name__ == "__main__":
     main()
