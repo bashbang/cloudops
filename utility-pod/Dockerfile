@@ -7,27 +7,34 @@ RUN apt-get -y update && \
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y install \
-    build-essential \
-    curl \
-    dnsutils \
-    git \
-    htop \
-    iperf \
-    iputils-ping \
-    lynx \
-    mysql-client \
-    nmap \
-    postgresql \
-    postgresql-contrib \
-    postgresql-client \
-    procps \
-    rsync \
-    telnet \
-    traceroute \
-    unzip \
-    vim \
-    wget \
-    && \
+        build-essential \
+        curl \
+        dnsutils \
+        git \
+        htop \
+        iperf \
+        iputils-ping \
+        jq \
+        lynx \
+        mysql-client \
+        nmap \
+        postgresql \
+        postgresql-contrib \
+        postgresql-client \
+        procps \
+        rsync \
+        telnet \
+        traceroute \
+        unzip \
+        vim \
+        wget \
+        yq
+
+RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+RUN echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+RUN apt-get -y update && \
+    apt-get -y install \
+        mongodb-mongosh && \
     rm -rf /var/lib/apt/lists/*
 
 # A writeable folder for OCP deployments that are non-root based runtimes
@@ -46,7 +53,7 @@ RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
 
 # install Openshift CLI tool oc
-RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.17/openshift-client-linux-4.17.1.tar.gz | tar -zxvf - -C /usr/local/bin/
+RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin/
 
 # install Github CLI tool gh
 RUN curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_amd64.tar.gz | tar -zxvf - gh_2.60.0_linux_amd64/bin/gh --strip-components=1
