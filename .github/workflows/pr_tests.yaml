@@ -1,0 +1,32 @@
+name: PR Tests
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+  pull_request:
+    types: [opened]
+
+jobs:
+
+  myjob:
+    name: My Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        id: code-checkout
+        uses: actions/checkout@v3
+
+      - name: find-pr
+        id: find-pr
+        uses: jwalton/gh-find-current-pr@v1
+        with:
+          state: open
+
+      - name: job1
+        id: job1
+        run: echo "Your PR is ${PR}"
+        if: success() && steps.find-pr.outputs.number
+        env:
+          PR: ${{ steps.find-pr.outputs.pr }}
