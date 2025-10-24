@@ -48,12 +48,18 @@ RUN mkdir /test2 && \
     chgrp 0 /test2 && \
     chmod g=u /test2
 
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip ; \
+RUN set -eux; \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        AWS_ARCH=x86_64; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip -o awscliv2.zip ; \
-    fi && \
-    unzip awscliv2.zip -d awscliv2 && ./awscliv2/aws/install && rm awscliv2.zip
+        AWS_ARCH=aarch64; \
+    else \
+        echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
+    fi; \
+    curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip -o awscliv2.zip; \
+    unzip awscliv2.zip; \
+    ./aws/install; \
+    rm -rf awscliv2.zip aws
 
 RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
@@ -62,12 +68,18 @@ RUN curl https://rclone.org/install.sh | bash
 RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin/
 
 # install Github CLI tool gh
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_amd64.tar.gz | tar -zxvf - gh_2.60.0_linux_amd64/bin/gh --strip-components=1 \
+RUN set -eux; \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        GH_ARCH=amd64; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_arm64.tar.gz | tar -zxvf - gh_2.60.0_linux_arm64/bin/gh --strip-components=1 \
-    fi
-
+        GH_ARCH=arm64; \
+    else \
+        echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
+    fi; \
+    curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
+    tar -xzf gh.tar.gz; \
+    cp gh_2.60.0_linux_${GH_ARCH}/bin/gh /usr/local/bin/gh; \
+    rm -rf gh.tar.gz gh_2.60.0_linux_${GH_ARCH}
 
 # Set the default shell on openshift to use bash rather than sh
 RUN /bin/sed -i 's/SHELL=\/bin\/sh/SHELL=\/bin\/bash/g' /etc/default/useradd
