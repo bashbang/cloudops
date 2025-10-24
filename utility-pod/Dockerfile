@@ -65,7 +65,15 @@ RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
 
 # install Openshift CLI tool oc
-RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin/
+RUN set -eux; \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        OCP_ARCH=""; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        OCP_ARCH="-arm64"; \
+    else \
+        echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
+    fi; \
+    curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux${OCP_ARCH}.tar.gz | tar -zxvf - -C /usr/local/bin/
 
 # install Github CLI tool gh
 RUN set -eux; \
@@ -76,7 +84,7 @@ RUN set -eux; \
     else \
         echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
     fi; \
-    curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
+    curl -sfL https://github.com/cli/cli/releases/download/v2.82.1/gh_2.60.0_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
     tar -xzf gh.tar.gz; \
     cp gh_2.60.0_linux_${GH_ARCH}/bin/gh /usr/local/bin/gh; \
     rm -rf gh.tar.gz gh_2.60.0_linux_${GH_ARCH}
