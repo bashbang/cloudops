@@ -23,6 +23,7 @@ jobs:
           scan-type: "fs"
           scanners: "vuln,secret,config"
           severity: "CRITICAL,HIGH"
+          ignore-policy: true   # don't evaluate external cloud policies
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
@@ -74,5 +75,5 @@ jobs:
         run: |
           docker images
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-          grype ghcr.io/${{ github.actor }}/util:release --platform linux/amd64
-          grype ghcr.io/${{ github.actor }}/util:release --platform linux/arm64
+          grype ghcr.io/${{ github.actor }}/util:test-latest --platform linux/amd64
+          grype ghcr.io/${{ github.actor }}/util:test-latest --platform linux/arm64
