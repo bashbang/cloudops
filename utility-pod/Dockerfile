@@ -6,6 +6,8 @@ RUN apt-get -y update && \
     apt-get -y upgrade
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG TARGETPLATFORM
+
 RUN apt-get -y install \
         build-essential \
         curl \
@@ -46,8 +48,12 @@ RUN mkdir /test2 && \
     chgrp 0 /test2 && \
     chmod g=u /test2
 
-
-RUN curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip && unzip awscliv2.zip -d awscliv2 && ./awscliv2/aws/install && rm awscliv2.zip
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip ; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        curl -sfL https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip -o awscliv2.zip ; \
+    fi && \
+    unzip awscliv2.zip -d awscliv2 && ./awscliv2/aws/install && rm awscliv2.zip
 
 RUN curl https://rclone.org/install.sh | bash
 # manually run 'rclone config' to setup the environment for each remote.
@@ -56,7 +62,12 @@ RUN curl https://rclone.org/install.sh | bash
 RUN curl -sfL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin/
 
 # install Github CLI tool gh
-RUN curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_amd64.tar.gz | tar -zxvf - gh_2.60.0_linux_amd64/bin/gh --strip-components=1
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_amd64.tar.gz | tar -zxvf - gh_2.60.0_linux_amd64/bin/gh --strip-components=1 \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        curl -sfL https://github.com/cli/cli/releases/download/v2.60.0/gh_2.60.0_linux_arm64.tar.gz | tar -zxvf - gh_2.60.0_linux_arm64/bin/gh --strip-components=1 \
+    fi
+
 
 # Set the default shell on openshift to use bash rather than sh
 RUN /bin/sed -i 's/SHELL=\/bin\/sh/SHELL=\/bin\/bash/g' /etc/default/useradd
