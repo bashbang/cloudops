@@ -28,8 +28,7 @@ resource "sysdig_monitor_alert_v2_metric" "pod_metrics" {
   }
 
   notification_channels {
-    # TODO: hard coded id for now. This shold be generated and referenced.
-    id                     = 238924
+    id                     = sysdig_monitor_notification_channel_email.tf_sre.id
     renotify_every_minutes = 60
   }
 
