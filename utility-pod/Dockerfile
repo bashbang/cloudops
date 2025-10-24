@@ -7,8 +7,7 @@ RUN apt-get -y update && \
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETPLATFORM
-
-GH_VERSION="2.82.1"; \
+ARG GH_VERSION="2.82.1"
 
 RUN apt-get -y install \
         build-essential \
