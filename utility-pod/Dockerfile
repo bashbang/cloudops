@@ -84,7 +84,7 @@ RUN set -eux; \
     else \
         echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
     fi; \
-    curl -sfL https://github.com/cli/cli/releases/download/v2.82.1/gh_2.60.0_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
+    curl -sfL https://github.com/cli/cli/releases/download/v2.82.1/gh_2.82.1_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
     tar -xzf gh.tar.gz; \
     cp gh_2.60.0_linux_${GH_ARCH}/bin/gh /usr/local/bin/gh; \
     rm -rf gh.tar.gz gh_2.60.0_linux_${GH_ARCH}
