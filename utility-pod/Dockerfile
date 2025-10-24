@@ -8,6 +8,8 @@ RUN apt-get -y update && \
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETPLATFORM
 
+GH_VERSION="2.82.1"; \
+
 RUN apt-get -y install \
         build-essential \
         curl \
@@ -84,10 +86,10 @@ RUN set -eux; \
     else \
         echo "Unsupported platform: $TARGETPLATFORM"; exit 1; \
     fi; \
-    curl -sfL https://github.com/cli/cli/releases/download/v2.82.1/gh_2.82.1_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
+    curl -sfL https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz -o gh.tar.gz; \
     tar -xzf gh.tar.gz; \
-    cp gh_2.60.0_linux_${GH_ARCH}/bin/gh /usr/local/bin/gh; \
-    rm -rf gh.tar.gz gh_2.60.0_linux_${GH_ARCH}
+    cp gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh /usr/local/bin/gh; \
+    rm -rf gh.tar.gz gh_${GH_VERSION}_linux_${GH_ARCH}
 
 # Set the default shell on openshift to use bash rather than sh
 RUN /bin/sed -i 's/SHELL=\/bin\/sh/SHELL=\/bin\/bash/g' /etc/default/useradd
