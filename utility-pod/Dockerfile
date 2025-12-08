@@ -24,6 +24,8 @@ RUN apt-get -y install \
         postgresql \
         postgresql-contrib \
         postgresql-client \
+        python3 \
+        python3-pip \
         procps \
         rsync \
         telnet \
@@ -32,6 +34,10 @@ RUN apt-get -y install \
         vim \
         wget \
         yq
+
+RUN pip3 install --no-cache-dir --upgrade --break-system-packages pip \
+    && pip3 install --no-cache-dir patroni[etcd] \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
 RUN echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
