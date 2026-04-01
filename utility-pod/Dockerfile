@@ -2,14 +2,14 @@ FROM public.ecr.aws/ubuntu/ubuntu:24.04_stable
 
 SHELL ["/bin/bash", "-c"]
 
-RUN apt-get -y update && \
-    apt-get -y upgrade
-
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETPLATFORM
-ARG GH_VERSION="2.82.1"
+ARG GH_VERSION="2.89.0"
+ARG MONGODB_VERSION="8.2"
 
-RUN apt-get -y install \
+RUN apt-get -y update && \
+    apt-get -y upgrade && \
+    apt-get -y install \
         build-essential \
         curl \
         dnsutils \
@@ -33,13 +33,14 @@ RUN apt-get -y install \
         unzip \
         vim \
         wget \
-        yq
+        yq && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --no-cache-dir --break-system-packages patroni[etcd] psycopg[binary]
 
-RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-RUN echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
-RUN apt-get -y update && \
+RUN curl -fsSL https://pgp.mongodb.com/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg --dearmor && \
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/${MONGODB_VERSION} multiverse" | tee /etc/apt/sources.list.d/mongodb-org-${MONGODB_VERSION}.list && \
+    apt-get -y update && \
     apt-get -y install \
         mongodb-mongosh && \
     rm -rf /var/lib/apt/lists/*
