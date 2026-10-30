@@ -41,9 +41,9 @@ jobs:
           namespace: ${{ secrets.OC4_GOLD_LICENSE_PLATE}}
 
       - name: Install oc
-        uses: redhat-actions/oc-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v2
         with:
-          oc_version: '4.6'
+          oc: '4'
 
       - name: Probe Gold
         run: |
@@ -78,9 +78,9 @@ jobs:
           namespace: ${{ secrets.OC4_GOLD_LICENSE_PLATE}}
 
       - name: Install oc
-        uses: redhat-actions/oc-installer@v1
+        uses: redhat-actions/openshift-tools-installer@v2
         with:
-          oc_version: '4.6'
+          oc: '4'
 
       - name: Probe GoldDR
         run: |
